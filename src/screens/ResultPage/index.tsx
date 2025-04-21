@@ -184,6 +184,7 @@ export const ResultPage = (): JSX.Element => {
       
       // パーソナリティタイプの判定
       const typeResult = determinePersonalityType(parsedPersonalityData);
+      console.log(`判定されたタイプ分類: ${typeResult.typePattern}, ${typeResult.classificationType}`); // デバッグ用ログ出力
       setTypeResult(typeResult);
     } else {
       // デモデータを表示
@@ -411,6 +412,7 @@ export const ResultPage = (): JSX.Element => {
 
   // タイプ分類に応じた背景色と画像を取得する関数
   const getTopSectionStyles = (classificationType: '類似型' | '調和型' | '真逆型') => {
+    console.log(`現在のタイプ分類: ${classificationType}`); // デバッグ用ログ出力
     switch(classificationType) {
       case '類似型':
         return { bgColor: 'bg-[#F6F4E0]', image: '/ruiji_top.png' };
@@ -432,6 +434,7 @@ export const ResultPage = (): JSX.Element => {
 
   // タイプ分類に応じたスタイルを取得
   const topSectionStyles = getTopSectionStyles(typeResult.classificationType);
+  console.log('適用するスタイル:', topSectionStyles); // デバッグ用ログ出力
 
   return (
     <div className="min-h-screen bg-white">
@@ -459,6 +462,10 @@ export const ResultPage = (): JSX.Element => {
             src={topSectionStyles.image}
             alt={`${typeResult.classificationType}イラスト`}
             className="w-[280px] md:w-[320px] h-auto md:h-[213px] flex-shrink-0" 
+            onError={(e) => {
+              console.error(`画像の読み込みエラー: ${topSectionStyles.image}`);
+              e.currentTarget.src = '/chowa_top.png'; // フォールバック画像
+            }}
           />
         </div>
       </div>
