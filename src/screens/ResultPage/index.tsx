@@ -438,7 +438,7 @@ export const ResultPage = (): JSX.Element => {
               {typeResult.classificationType === '調和型' && '異なる個性や意見を尊重しながら、全体を整えていくバランス感覚を持っています。'}
               {typeResult.classificationType === '真逆型' && '対照的な特性をもつ人や考え方を理解し、多様な視点から物事を捉えます。'}
             </p>
-            <TypeClassification />
+            <TypeClassification classificationType={typeResult.classificationType} />
           </div>
 
           <div className="w-full mb-8 md:mb-12">
