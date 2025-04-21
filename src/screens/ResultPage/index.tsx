@@ -31,16 +31,26 @@ interface ManagementScoreData {
   answeredCount: number;
 }
 
+interface PersonalityScoreData {
+  axis1: { scoreA: number, scoreB: number, dominantType: 'A' | 'B', percentage: number };
+  axis2: { scoreA: number, scoreB: number, dominantType: 'A' | 'B', percentage: number };
+  axis3: { scoreA: number, scoreB: number, dominantType: 'A' | 'B', percentage: number };
+  axis4: { scoreA: number, scoreB: number, dominantType: 'A' | 'B', percentage: number };
+}
+
 export const ResultPage = (): JSX.Element => {
   const navigate = useNavigate();
   const [score, setScore] = useState<number>(0);
   const [managementScoreData, setManagementScoreData] = useState<ManagementScoreData | null>(null);
+  const [personalityScoreData, setPersonalityScoreData] = useState<PersonalityScoreData | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [personalityScores, setPersonalityScores] = useState<PersonalityScore[]>([]);
 
   useEffect(() => {
     // localStorage から診断結果データを取得
     const storedManagementScoreData = localStorage.getItem('managementScoreData');
+    const storedPersonalityScoreData = localStorage.getItem('personalityScoreData');
     const storedAnswers = localStorage.getItem('diagnosticAnswers');
 
     if (storedManagementScoreData) {
@@ -56,6 +66,19 @@ export const ResultPage = (): JSX.Element => {
       setScore(73);
     }
 
+    if (storedPersonalityScoreData) {
+      const parsedPersonalityData = JSON.parse(storedPersonalityScoreData) as PersonalityScoreData;
+      setPersonalityScoreData(parsedPersonalityData);
+      
+      // パーソナリティスコアの生成
+      const generatedScores = generatePersonalityScores(parsedPersonalityData);
+      setPersonalityScores(generatedScores);
+    } else {
+      // デモデータを表示
+      console.warn('パーソナリティデータが見つかりません。デモデータを表示します。');
+      setPersonalityScores(demoPersonalityScores);
+    }
+
     if (storedAnswers) {
       setAnswers(JSON.parse(storedAnswers));
     }
@@ -63,7 +86,54 @@ export const ResultPage = (): JSX.Element => {
     setLoading(false);
   }, [navigate]);
 
-  const personalityScores: PersonalityScore[] = [
+  // パーソナリティスコアデータをもとに表示用のPersonalityScoreを生成する関数
+  const generatePersonalityScores = (data: PersonalityScoreData): PersonalityScore[] => {
+    return [
+      {
+        leftLabel: "創造・開拓型",
+        rightLabel: "拡大・効率型",
+        percentage: data.axis1.dominantType === 'A' ? data.axis1.percentage : 100 - data.axis1.percentage,
+        color: "bg-[#4298B4]",
+        type: data.axis1.dominantType === 'A' ? "創造・開拓型" : "拡大・効率型",
+        description: data.axis1.dominantType === 'A' 
+          ? "新しい価値やサービスをゼロから生み出すことに強みを持つタイプ" 
+          : "既存の事業や仕組みを成長させ、効率化することに強みを持つタイプ"
+      },
+      {
+        leftLabel: "直感・行動型",
+        rightLabel: "分析・計画型",
+        percentage: data.axis2.dominantType === 'A' ? data.axis2.percentage : 100 - data.axis2.percentage,
+        color: "bg-[#E4AE3A]",
+        type: data.axis2.dominantType === 'A' ? "直感・行動型" : "分析・計画型",
+        description: data.axis2.dominantType === 'A' 
+          ? "直感を信じ、素早く行動を起こすことに強みを持つタイプ" 
+          : "データと論理に基づいて慎重に計画を立てることを重視するタイプ"
+      },
+      {
+        leftLabel: "ビジョン提示型",
+        rightLabel: "メンバー尊重型",
+        percentage: data.axis3.dominantType === 'A' ? data.axis3.percentage : 100 - data.axis3.percentage,
+        color: "bg-[#33A474]",
+        type: data.axis3.dominantType === 'A' ? "ビジョン提示型" : "メンバー尊重型",
+        description: data.axis3.dominantType === 'A' 
+          ? "明確なビジョンを掲げ、チームを導くことに強みを持つタイプ" 
+          : "メンバーの意見を尊重し、チームの力を引き出すことを大切にするタイプ"
+      },
+      {
+        leftLabel: "市場・顧客志向",
+        rightLabel: "チーム・文化志向",
+        percentage: data.axis4.dominantType === 'A' ? data.axis4.percentage : 100 - data.axis4.percentage,
+        color: "bg-[#F25E62]",
+        type: data.axis4.dominantType === 'A' ? "市場・顧客志向" : "チーム・文化志向",
+        description: data.axis4.dominantType === 'A' 
+          ? "市場や顧客のニーズを重視し、外部環境に焦点を当てるタイプ" 
+          : "組織の文化や風土、チームの結束力を重視するタイプ"
+      }
+    ];
+  };
+
+  // デモ用のパーソナリティスコアデータ
+  const demoPersonalityScores: PersonalityScore[] = [
     {
       leftLabel: "創造・開拓型",
       rightLabel: "拡大・効率型",
