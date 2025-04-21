@@ -1,0 +1,8 @@
+#!/bin/sh
+# 現在のブランチを取得
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+echo "コミット完了しました。Githubにプッシュします..."
+git push origin $BRANCH
+
+echo "GitHubへのプッシュが完了しました。Vercelが自動的にデプロイを開始します。" 
