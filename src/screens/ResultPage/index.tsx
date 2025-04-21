@@ -549,10 +549,7 @@ export const ResultPage = (): JSX.Element => {
           </div>
 
           <div className="w-full mb-8 md:mb-12">
-            <h2 className="flex items-center gap-2 text-xl md:text-2xl font-bold mb-6 md:mb-8">
-              <span className="w-8 h-8 border border-black rounded-full flex items-center justify-center">3</span>
-              あなたの活躍できる環境
-            </h2>
+            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたの活躍できる環境</h3>
             <EnvironmentPoints points={environmentPoints} />
           </div>
 
