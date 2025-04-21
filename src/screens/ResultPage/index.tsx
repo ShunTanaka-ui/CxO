@@ -424,6 +424,19 @@ export const ResultPage = (): JSX.Element => {
     }
   };
 
+  // タイプ分類に応じた診断結果サマリーを取得する関数
+  const getResultSummary = (classificationType: '類似型' | '調和型' | '真逆型') => {
+    switch(classificationType) {
+      case '類似型':
+        return "あなたは、「先駆者タイプ」のリーダーです。明確なビジョンを持ち、新しい価値を生み出すことに強いこだわりを持っています。情熱的で行動力があり、周囲を巻き込む力があります。類似型リーダーとして、一貫した方向性で組織を牽引し、新しい道を切り開くことに長けています。";
+      case '真逆型':
+        return "あなたは、「多面的リーダー」です。多様な視点を持ち、幅広い状況に適応できる柔軟性があります。対立する意見も尊重し、バランスを取りながら意思決定を行います。真逆型リーダーとして、異なる価値観や方法論を統合し、組織に深みと持続性をもたらします。";
+      case '調和型':
+      default:
+        return "あなたは、「現場型のリーダー」です。経験に基づく現場の目線を大切にし、経営とチームの橋渡し役になれるタイプです。調和型リーダーとして、時には共感を示しながら、時には冷静に判断を下し、人が集まってくる――そんな「つなぎ役」として組織の調和を保ちます。";
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -472,7 +485,7 @@ export const ResultPage = (): JSX.Element => {
           </h2>
 
           <div className="text-sm text-[#343C4B] leading-relaxed mb-8 md:mb-12">
-            あなたは、「現場型のリーダー」経験に基づく現場の目線を、そのまっすぐ真ん中にとらえ、経営とチームの橋渡し役になれるタイプです。調和リーダーとして期待されるスタイル。時には共感を示しながら、時には冷静に判断を下し、人が集まってくる――そんな"つなぎ役"となる今後つくりのタイプです。
+            {getResultSummary(typeResult.classificationType)}
           </div>
 
           <div className="w-full mb-8 md:mb-12">
