@@ -13,6 +13,9 @@ export const PersonalityScoreBar = ({ score }: { score: PersonalityScore }): JSX
   // タイプが「志向」で終わるかどうかをチェック
   const isShikoType = score.type.endsWith('志向');
 
+  // カラーの抽出（bg-[#XXXXXX]形式から#XXXXXXを取得）
+  const colorCode = score.color.replace('bg-[', '').replace(']', '');
+
   return (
     <div className="mb-6 md:mb-8 last:mb-0">
       <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8">
@@ -27,7 +30,12 @@ export const PersonalityScoreBar = ({ score }: { score: PersonalityScore }): JSX
               </span>
             </div>
             <div className="relative mt-8">
-              <div className={`h-2 bg-gray-200 rounded-full`} />
+              {/* ベースのゲージ（同じカラーで透明度を低く設定） */}
+              <div 
+                className={`h-2 rounded-full`} 
+                style={{ backgroundColor: `${colorCode}33` }} // 33は約20%の透明度を表す16進数
+              />
+              {/* パーセンテージに基づくゲージ */}
               <div 
                 className={`absolute top-0 h-2 ${score.color} rounded-full`}
                 style={{ width: `${score.percentage}%` }}
@@ -36,7 +44,7 @@ export const PersonalityScoreBar = ({ score }: { score: PersonalityScore }): JSX
                 className="absolute"
                 style={{ left: `calc(${score.percentage}% - 8px)`, top: '-6px' }}
               >
-                <div className="w-4 h-4 rounded-full bg-white border-2" style={{ borderColor: score.color.replace('bg-[', '').replace(']', '') }} />
+                <div className="w-4 h-4 rounded-full bg-white border-2" style={{ borderColor: colorCode }} />
               </div>
             </div>
             <div className="flex justify-between mt-2">
