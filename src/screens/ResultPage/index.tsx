@@ -450,12 +450,6 @@ export const ResultPage = (): JSX.Element => {
             </div>
             <div className="text-[#343C4B] text-sm leading-relaxed">
               {getScoreMessage(score)}
-              <br /><br />
-              {managementScoreData && (
-                <span className="text-xs text-gray-600">
-                  回答した経営質問：{managementScoreData.answeredCount}/10問
-                </span>
-              )}
             </div>
           </div>
           <img 
