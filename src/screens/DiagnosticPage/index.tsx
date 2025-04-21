@@ -217,12 +217,29 @@ export const DiagnosticPage = (): JSX.Element => {
   };
 
   const getRadioButtonStyle = (value: number) => {
-    if (value <= 3) {
-      return "border-[#00a381] hover:border-[#00a381] text-[#00a381]";
-    } else if (value >= 5) {
+    if (value <= 2) {
       return "border-[#ff3232] hover:border-[#ff3232] text-[#ff3232]";
+    } else if (value >= 4) {
+      return "border-[#00a381] hover:border-[#00a381] text-[#00a381]";
     }
     return "border-gray-300 hover:border-gray-400 text-gray-400";
+  };
+
+  const getRadioButtonLabel = (value: number) => {
+    switch (value) {
+      case 1:
+        return "全くそう思わない";
+      case 2:
+        return "そう思わない";
+      case 3:
+        return "どちらともいえない";
+      case 4:
+        return "そう思う";
+      case 5:
+        return "強くそう思う";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -272,24 +289,28 @@ export const DiagnosticPage = (): JSX.Element => {
                 </h2>
 
                 <div className="flex flex-col items-center">
-                  <div className="flex justify-between w-full max-w-md mb-3 sm:mb-4">
-                    <span className="text-[#00a381] text-sm sm:text-base font-medium">賛成する</span>
-                    <span className="text-[#ff3232] text-sm sm:text-base font-medium">反対する</span>
-                  </div>
-
                   <RadioGroup 
-                    className="flex justify-between w-full max-w-md"
+                    className="flex flex-col w-full max-w-md gap-3"
                     value={answers[question.id]?.toString() || ""}
                     onValueChange={(value) => handleAnswerSelect(question.id, value)}
                   >
-                    {[1, 2, 3, 4, 5, 6, 7].map((value) => (
-                      <RadioGroupItem 
-                        key={value} 
-                        value={value.toString()} 
-                        id={`option-${question.id}-${value}`}
-                        className={getRadioButtonStyle(value)}
-                      />
-                    ))}
+                    <div className="grid grid-cols-5 gap-2 w-full mb-2">
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <div key={value} className="flex flex-col items-center">
+                          <RadioGroupItem 
+                            value={value.toString()} 
+                            id={`option-${question.id}-${value}`}
+                            className={`${getRadioButtonStyle(value)} mb-1.5`}
+                          />
+                          <label 
+                            htmlFor={`option-${question.id}-${value}`}
+                            className="text-xs text-center cursor-pointer"
+                          >
+                            {getRadioButtonLabel(value)}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                   </RadioGroup>
                 </div>
               </div>
