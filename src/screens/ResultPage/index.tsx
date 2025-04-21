@@ -38,6 +38,96 @@ interface PersonalityScoreData {
   axis4: { scoreA: number, scoreB: number, dominantType: 'A' | 'B', percentage: number };
 }
 
+interface PersonalityTypeResult {
+  typePattern: string;
+  classificationType: '類似型' | '調和型' | '真逆型';
+  typeDescription: string;
+}
+
+// パーソナリティタイプのマッピング
+const personalityTypeMapping: Record<string, PersonalityTypeResult> = {
+  'AAAA': {
+    typePattern: 'AAAA',
+    classificationType: '類似型',
+    typeDescription: '未来を描き、市場を切り拓く、生粋のスタートアップ・リーダー'
+  },
+  'AAAB': {
+    typePattern: 'AAAB',
+    classificationType: '類似型',
+    typeDescription: 'ビジョンと仲間を原動力に、新しい価値を創造する情熱家'
+  },
+  'AABA': {
+    typePattern: 'AABA',
+    classificationType: '類似型',
+    typeDescription: 'メンバーと対話し、市場ニーズに応える、機動力ある挑戦者'
+  },
+  'AABB': {
+    typePattern: 'AABB',
+    classificationType: '調和型',
+    typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
+  },
+  'BBAA': {
+    typePattern: 'BBAA',
+    classificationType: '調和型',
+    typeDescription: '市場を見据え、戦略的に事業を成長させる、冷静な指揮官'
+  },
+  'BBAB': {
+    typePattern: 'BBAB',
+    classificationType: '真逆型',
+    typeDescription: '組織とビジョンを着実に育て上げる、堅実な組織アーキテクト'
+  },
+  'BBBA': {
+    typePattern: 'BBBA',
+    classificationType: '真逆型',
+    typeDescription: '緻密な計画と対話で、市場の変化に対応する、信頼のナビゲーター'
+  },
+  'BBBB': {
+    typePattern: 'BBBB',
+    classificationType: '真逆型',
+    typeDescription: '人とプロセスを磨き、組織の持続的成長を築く、安定の守護者'
+  },
+  'ABAA': {
+    typePattern: 'ABAA',
+    classificationType: '類似型',
+    typeDescription: '市場を見据え、緻密な戦略で新しい価値を実現する、戦略的創造者'
+  },
+  'ABAB': {
+    typePattern: 'ABAB',
+    classificationType: '調和型',
+    typeDescription: 'ビジョン達成に向け、計画と組織力を融合させる、未来志向の設計者'
+  },
+  'ABBA': {
+    typePattern: 'ABBA',
+    classificationType: '調和型',
+    typeDescription: '市場の声とメンバーの知恵を結集し、革新を生む、対話型チャレンジャー'
+  },
+  'ABBB': {
+    typePattern: 'ABBB',
+    classificationType: '真逆型',
+    typeDescription: '人を活かし、計画的に新しい組織文化を創造する、共創型リーダー'
+  },
+  'BAAA': {
+    typePattern: 'BAAA',
+    classificationType: '類似型',
+    typeDescription: '市場の変化を捉え、即断即決で事業を拡大する、実践的グロースハッカー'
+  },
+  'BAAB': {
+    typePattern: 'BAAB',
+    classificationType: '調和型',
+    typeDescription: 'ビジョン達成のため、組織と行動力を両輪でドライブする、行動派リーダー'
+  },
+  'BABA': {
+    typePattern: 'BABA',
+    classificationType: '調和型',
+    typeDescription: '市場の声に応え、メンバーと共に迅速に改善を進める、現場主義の改革者'
+  },
+  'BABB': {
+    typePattern: 'BABB',
+    classificationType: '真逆型',
+    typeDescription: 'メンバーの力を引き出し、行動を通じて組織を着実に成長させる、伴走型リーダー'
+  }
+};
+
 export const ResultPage = (): JSX.Element => {
   const navigate = useNavigate();
   const [score, setScore] = useState<number>(0);
@@ -46,6 +136,12 @@ export const ResultPage = (): JSX.Element => {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [personalityScores, setPersonalityScores] = useState<PersonalityScore[]>([]);
+  // タイプ分類の結果を保持するステート
+  const [typeResult, setTypeResult] = useState<PersonalityTypeResult>({
+    typePattern: 'AABB',
+    classificationType: '調和型',
+    typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
+  });
 
   useEffect(() => {
     // localStorage から診断結果データを取得
@@ -73,10 +169,20 @@ export const ResultPage = (): JSX.Element => {
       // パーソナリティスコアの生成
       const generatedScores = generatePersonalityScores(parsedPersonalityData);
       setPersonalityScores(generatedScores);
+      
+      // パーソナリティタイプの判定
+      const typeResult = determinePersonalityType(parsedPersonalityData);
+      setTypeResult(typeResult);
     } else {
       // デモデータを表示
       console.warn('パーソナリティデータが見つかりません。デモデータを表示します。');
       setPersonalityScores(demoPersonalityScores);
+      // デモ用のタイプ分類
+      setTypeResult({
+        typePattern: 'AABB',
+        classificationType: '調和型',
+        typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
+      });
     }
 
     if (storedAnswers) {
@@ -85,6 +191,31 @@ export const ResultPage = (): JSX.Element => {
 
     setLoading(false);
   }, [navigate]);
+
+  // パーソナリティデータからタイプパターンを判定し、対応する分類とタイプ名を返す関数
+  const determinePersonalityType = (data: PersonalityScoreData): PersonalityTypeResult => {
+    // 各軸の優位タイプから4文字のタイプパターンを作成
+    const typePattern = 
+      data.axis1.dominantType + 
+      data.axis2.dominantType + 
+      data.axis3.dominantType + 
+      data.axis4.dominantType;
+    
+    // マッピングテーブルから対応する結果を取得
+    const result = personalityTypeMapping[typePattern];
+    
+    if (result) {
+      return result;
+    } else {
+      // 万が一対応するパターンがない場合のフォールバック
+      console.warn(`未知のタイプパターン: ${typePattern}`);
+      return {
+        typePattern,
+        classificationType: '調和型',
+        typeDescription: 'チームの和を力に、組織の成長に貢献する、バランス型リーダー'
+      };
+    }
+  };
 
   // パーソナリティスコアデータをもとに表示用のPersonalityScoreを生成する関数
   const generatePersonalityScores = (data: PersonalityScoreData): PersonalityScore[] => {
@@ -300,9 +431,12 @@ export const ResultPage = (): JSX.Element => {
           </div>
 
           <div className="w-full mb-8 md:mb-12">
-            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたのタイプ分類：調和型</h3>
+            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたのタイプ分類：{typeResult.classificationType}</h3>
             <p className="text-sm text-[#343C4B] mb-4 md:mb-6">
-              あなたは、異なる個性や意見を尊重しながら、全体を整えていく"調整型CxO"。多様性を推進する現代の組織には欠かせない存在です。
+              あなたは、{typeResult.typePattern}タイプの「{typeResult.classificationType}」に分類されます。
+              {typeResult.classificationType === '類似型' && '4つの軸において類似した特性を持ち、一貫した方向性で物事を捉えます。'}
+              {typeResult.classificationType === '調和型' && '異なる個性や意見を尊重しながら、全体を整えていくバランス感覚を持っています。'}
+              {typeResult.classificationType === '真逆型' && '対照的な特性をもつ人や考え方を理解し、多様な視点から物事を捉えます。'}
             </p>
             <TypeClassification />
           </div>
@@ -320,7 +454,7 @@ export const ResultPage = (): JSX.Element => {
             <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたを一言で表すと...</h3>
             <div>
               <h4 className="text-base md:text-lg font-bold text-[#2B7D3C] mb-3 md:mb-4">
-                人と事業の真ん中で、"空気を変える人"
+                {typeResult.typeDescription}
               </h4>
               <p className="text-sm text-[#343C4B] leading-relaxed">
                 経営の視座を持ちながら、現場の空気や感情にも鋭敏なあなたは、チームの温度を読み、風通しのいい空間をつくる存在。そんなあなたがいることで、組織に"流れ"が生まれ、変化が動き出します。
