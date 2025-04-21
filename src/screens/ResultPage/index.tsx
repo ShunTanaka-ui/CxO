@@ -409,6 +409,19 @@ export const ResultPage = (): JSX.Element => {
     return result.slice(0, requiredCount);
   };
 
+  // タイプ分類に応じた背景色と画像を取得する関数
+  const getTopSectionStyles = (classificationType: '類似型' | '調和型' | '真逆型') => {
+    switch(classificationType) {
+      case '類似型':
+        return { bgColor: 'bg-[#F6F4E0]', image: '/ruiji_top.png' };
+      case '真逆型':
+        return { bgColor: 'bg-[#FBE8E8]', image: '/magyaku_top.png' };
+      case '調和型':
+      default:
+        return { bgColor: 'bg-[#ebf6f1]', image: '/chowa_top.png' };
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -417,9 +430,12 @@ export const ResultPage = (): JSX.Element => {
     );
   }
 
+  // タイプ分類に応じたスタイルを取得
+  const topSectionStyles = getTopSectionStyles(typeResult.classificationType);
+
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-[#ebf6f1] w-full">
+      <div className={`${topSectionStyles.bgColor} w-full`}>
         <div className="max-w-[800px] mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10">
           <div>
             <div className="text-[#343C4B] text-base font-bold mb-2">
@@ -440,8 +456,8 @@ export const ResultPage = (): JSX.Element => {
             </div>
           </div>
           <img 
-            src="/chowa_top.png" 
-            alt="ミーティングイラスト" 
+            src={topSectionStyles.image}
+            alt={`${typeResult.classificationType}イラスト`}
             className="w-[280px] md:w-[320px] h-auto md:h-[213px] flex-shrink-0" 
           />
         </div>
