@@ -30,10 +30,10 @@ export const PersonalityScoreBar = ({ score }: { score: PersonalityScore }): JSX
               </span>
             </div>
             <div className="relative mt-8">
-              {/* ベースのゲージ（同じカラーで透明度を低く設定） */}
+              {/* ベースのゲージ（同じカラーで透明度なし） */}
               <div 
                 className={`h-2 rounded-full`} 
-                style={{ backgroundColor: `${colorCode}33` }} // 33は約20%の透明度を表す16進数
+                style={{ backgroundColor: `${colorCode}` }} // 透明度なし
               />
               {/* パーセンテージに基づくゲージ */}
               <div 
