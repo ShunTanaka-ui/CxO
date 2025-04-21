@@ -128,6 +128,18 @@ const personalityTypeMapping: Record<string, PersonalityTypeResult> = {
   }
 };
 
+// 経営質問と対応する強みのマッピング
+const managementStrengthsMapping: Record<number, { title: string, description: string }> = {
+  1: { title: "決断力", description: "組織の将来のために困難な意思決定を厭わない姿勢" },
+  4: { title: "柔軟性", description: "市場変化や予期せぬ事態に柔軟に対応し、迅速に行動を起こす能力" },
+  8: { title: "リーダーシップ", description: "不確実性の高い状況下でも最終的な意思決定を下す力" },
+  16: { title: "自己変革力", description: "常に新しいことを学び、自己を変革し続ける姿勢" },
+  19: { title: "状況把握力", description: "混沌とした状況から本質を見抜き、進むべき方向を示す能力" },
+  20: { title: "責任感", description: "最終的な責任者として個人的な犠牲も厭わない強い覚悟" },
+  26: { title: "危機対応力", description: "危機的状況でも冷静さを保ち、打開策を見出す思考力" },
+  29: { title: "粘り強さ", description: "短期的な批判や失敗に屈せず、長期的成功に向けて挑戦し続ける力" }
+};
+
 export const ResultPage = (): JSX.Element => {
   const navigate = useNavigate();
   const [score, setScore] = useState<number>(0);
@@ -331,33 +343,70 @@ export const ResultPage = (): JSX.Element => {
     }
   };
 
-  // スコアに基づいた強みを取得する関数
-  const getStrengths = (score: number) => {
+  // スコアと質問の回答に基づいた強みを取得する関数
+  const getStrengths = (score: number, answers: Record<number, number> = {}) => {
+    // 経営質問のIDリスト
+    const managementQuestionIds = [1, 4, 8, 16, 19, 20, 26, 29];
+    
+    // 回答された経営質問のスコアを取得（5段階評価を維持）
+    const questionScores = managementQuestionIds
+      .filter(id => answers[id] !== undefined)
+      .map(id => ({ id, score: answers[id] }))
+      .sort((a, b) => b.score - a.score); // スコアが高い順にソート
+    
+    // スコアに基づいた基本的な強みセット
+    let baseStrengths: { title: string, description: string }[] = [];
+    
     if (score >= 80) {
-      return [
+      baseStrengths = [
         { title: "優れた戦略的思考", description: "長期的視点で組織の進むべき道を描く力" },
-        { title: "危機対応力", description: "不確実な状況下での意思決定と実行力" },
         { title: "ビジョン構築力", description: "組織全体を巻き込む明確なビジョンを描く力" }
       ];
     } else if (score >= 60) {
-      return [
+      baseStrengths = [
         { title: "関係構築力", description: "立場や背景の異なる人ともスムーズに信頼関係を築く力" },
-        { title: "現場理解力", description: "抽象的な戦略を、具体的な現場感覚で捉える力" },
-        { title: "共創型スタンス", description: "他者とともに形をつくる、柔軟な巻き込み力" }
+        { title: "現場理解力", description: "抽象的な戦略を、具体的な現場感覚で捉える力" }
       ];
     } else if (score >= 40) {
-      return [
+      baseStrengths = [
         { title: "実行力", description: "指示された方針を確実に実行に移す能力" },
-        { title: "分析力", description: "物事を論理的に分解して考えることができる" },
-        { title: "協調性", description: "チームメンバーとの円滑な協力関係を構築できる" }
+        { title: "分析力", description: "物事を論理的に分解して考えることができる" }
       ];
     } else {
-      return [
+      baseStrengths = [
         { title: "専門性", description: "特定の領域での深い知識と経験" },
-        { title: "細部への配慮", description: "細かな点にも注意を払う丁寧さ" },
         { title: "着実な姿勢", description: "地に足のついた堅実なアプローチ" }
       ];
     }
+    
+    // 回答から強みを追加
+    let strengthsFromAnswers: { title: string, description: string }[] = [];
+    
+    // 回答がある場合、上位3つの質問から強みを抽出
+    if (questionScores.length > 0) {
+      // スコアが4以上（「そう思う」以上）の質問から強みを抽出
+      strengthsFromAnswers = questionScores
+        .filter(item => item.score >= 4)
+        .slice(0, 3) // 上位3つまで
+        .map(item => managementStrengthsMapping[item.id]);
+    }
+    
+    // 必要な強みの数を取得（足りない場合はbaseStrengthsから補完）
+    const requiredCount = 3;
+    let result: { title: string, description: string }[] = [...strengthsFromAnswers];
+    
+    // 3つに満たない場合、baseStrengthsから足りない分を追加
+    if (result.length < requiredCount) {
+      // すでに含まれていないbaseStrengthsを追加
+      const titlesToExclude = result.map(s => s.title);
+      const additionalStrengths = baseStrengths
+        .filter(s => !titlesToExclude.includes(s.title))
+        .slice(0, requiredCount - result.length);
+      
+      result = [...result, ...additionalStrengths];
+    }
+    
+    return result.slice(0, requiredCount);
   };
 
   if (loading) {
@@ -416,7 +465,7 @@ export const ResultPage = (): JSX.Element => {
               <div className="flex-1">
                 <p className="text-sm mb-4">あなたのCxO適正スコアは{score}点で、特に以下の強みが見られます：</p>
                 <ul className="space-y-4">
-                  {getStrengths(score).map((strength, index) => (
+                  {getStrengths(score, answers).map((strength, index) => (
                     <li key={index} className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <img src="/Check.svg" alt="check" className="w-4 h-4" />
