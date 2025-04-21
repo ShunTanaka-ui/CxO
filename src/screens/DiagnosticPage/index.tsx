@@ -10,6 +10,7 @@ import { DebugMenu } from "../../components/DebugMenu";
 interface Question {
   id: number;
   text: string;
+  isManagementQuestion?: boolean; // 経営質問かどうかのフラグ
 }
 
 export const DiagnosticPage = (): JSX.Element => {
@@ -22,6 +23,7 @@ export const DiagnosticPage = (): JSX.Element => {
     {
       id: 1,
       text: "事業のピボット（方向転換）や不採算部門の整理など、組織の将来のために必要ならば、困難な意思決定も厭わない。",
+      isManagementQuestion: true
     },
     {
       id: 2,
@@ -34,6 +36,7 @@ export const DiagnosticPage = (): JSX.Element => {
     {
       id: 4,
       text: "急な市場の変化や予期せぬ事態に応じて、計画を大胆に変更し、迅速に行動を起こすことに抵抗がない。",
+      isManagementQuestion: true
     },
     {
       id: 5,
@@ -50,6 +53,7 @@ export const DiagnosticPage = (): JSX.Element => {
     {
       id: 8,
       text: "正解が誰にも分からず情報も不十分な状況下でも、強いプレッシャーの中でリーダーとして最終的な意思決定を下すことができる。",
+      isManagementQuestion: true
     },
     {
       id: 9,
@@ -82,6 +86,7 @@ export const DiagnosticPage = (): JSX.Element => {
     {
       id: 16,
       text: "自身の役割や必要なスキルが変化し続けても、常に新しいことを学び、自己変革していくことに強い意欲を持っている。",
+      isManagementQuestion: true
     },
     {
       id: 17,
@@ -94,10 +99,12 @@ export const DiagnosticPage = (): JSX.Element => {
     {
       id: 19,
       text: "混沌とした状況や多くの情報の中から、問題や事業機会の核心を素早く見抜き、進むべき方向を示すことができる。",
+      isManagementQuestion: true
     },
     {
       id: 20,
       text: "会社の危機において、事業と従業員を守るためならば、最終的な責任者として個人的な犠牲を払う覚悟がある。",
+      isManagementQuestion: true
     },
     {
       id: 21,
@@ -122,6 +129,7 @@ export const DiagnosticPage = (): JSX.Element => {
     {
       id: 26,
       text: "予期せぬトラブルや資金難といった危機的な状況に直面しても、冷静さを保ち、打開策を見つけるために粘り強く思考できる。",
+      isManagementQuestion: true
     },
     {
       id: 27,
@@ -134,14 +142,17 @@ export const DiagnosticPage = (): JSX.Element => {
     {
       id: 29,
       text: "自らの判断が短期的に批判されたり、失敗と見なされたりしても、長期的な成功を信じて粘り強く挑戦し続けることができる。",
+      isManagementQuestion: true
     },
     {
       id: 30,
       text: "組織が進むべき魅力的なビジョンを描き、それをメンバーと共有し、実現に向けて情熱を注ぎたいと思う。",
+      isManagementQuestion: true
     },
     {
       id: 31,
       text: "まだ市場に受け入れられるか分からない新しいアイデアや、達成困難に見える高い目標にも、積極的に挑戦したいと思う。",
+      isManagementQuestion: true
     },
     {
       id: 32,
@@ -160,6 +171,39 @@ export const DiagnosticPage = (): JSX.Element => {
   const totalQuestions = questions.length;
   const answeredQuestions = Object.keys(answers).length;
   const progress = (answeredQuestions / totalQuestions) * 100;
+
+  // 経営質問のスコアを計算する関数
+  const calculateManagementScore = () => {
+    const managementQuestions = questions.filter(q => q.isManagementQuestion);
+    
+    // 経営質問が10問あることを確認
+    if (managementQuestions.length !== 10) {
+      console.warn(`経営質問の数が10問ではありません。現在は${managementQuestions.length}問です。`);
+    }
+    
+    // 各経営質問のスコアを合計（答えていない質問は0点として計算）
+    let totalScore = 0;
+    let answeredCount = 0;
+    
+    managementQuestions.forEach(question => {
+      const answer = answers[question.id];
+      if (answer !== undefined) {
+        // 5段階評価（1-5）を10点満点に変換
+        // 1 => 0点, 2 => 2.5点, 3 => 5点, 4 => 7.5点, 5 => 10点
+        const score = (answer - 1) * 2.5;
+        totalScore += score;
+        answeredCount++;
+      }
+    });
+    
+    // 全ての経営質問に回答している場合は平均を返す
+    // そうでない場合は未回答の質問を0点として扱う
+    return {
+      totalScore,
+      averageScore: answeredCount > 0 ? totalScore / 10 : 0,
+      answeredCount
+    };
+  };
 
   useEffect(() => {
     if (currentFocus !== null) {
@@ -200,6 +244,13 @@ export const DiagnosticPage = (): JSX.Element => {
   };
 
   const handleSubmit = () => {
+    // 診断結果を計算し、結果ページに渡す
+    const managementScoreData = calculateManagementScore();
+    
+    // localStorage経由で結果を保存（一時的な対応）
+    localStorage.setItem('managementScoreData', JSON.stringify(managementScoreData));
+    localStorage.setItem('diagnosticAnswers', JSON.stringify(answers));
+    
     navigate("/personal-info");
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { FooterSection } from "../../components/FooterSection";
 import { DebugMenu } from "../../components/DebugMenu";
@@ -12,10 +12,28 @@ export const PersonalInfoPage = (): JSX.Element => {
     name: "",
     email: "",
   });
+  
+  // 診断データが存在するか確認
+  useEffect(() => {
+    const managementScoreData = localStorage.getItem('managementScoreData');
+    const diagnosticAnswers = localStorage.getItem('diagnosticAnswers');
+    
+    // 診断データがない場合は診断ページにリダイレクト
+    if (!managementScoreData || !diagnosticAnswers) {
+      console.warn('診断データが見つかりません。診断ページにリダイレクトします。');
+      // 本番ではコメントアウトを外す
+      // navigate('/diagnostic');
+    }
+  }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("送信されたデータ:", formData);
+    
+    // ユーザー情報をlocalStorageに保存
+    localStorage.setItem('userInfo', JSON.stringify(formData));
+    
+    // 結果ページに遷移
     navigate("/result");
   };
 

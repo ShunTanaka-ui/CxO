@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { FooterSection } from "../../components/FooterSection";
 import { DebugMenu } from "../../components/DebugMenu";
@@ -9,6 +9,7 @@ import { TypeClassification } from "./components/TypeClassification";
 import { EnvironmentPoints } from "./components/EnvironmentPoints";
 import { CxoPassRegistration } from "./components/CxoPassRegistration";
 import { ShareSection } from "./components/ShareSection";
+import { useNavigate } from "react-router-dom";
 
 interface PersonalityScore {
   leftLabel: string;
@@ -24,8 +25,43 @@ interface EnvironmentPoint {
   description: string;
 }
 
+interface ManagementScoreData {
+  totalScore: number;
+  averageScore: number;
+  answeredCount: number;
+}
+
 export const ResultPage = (): JSX.Element => {
-  const score = 73;
+  const navigate = useNavigate();
+  const [score, setScore] = useState<number>(0);
+  const [managementScoreData, setManagementScoreData] = useState<ManagementScoreData | null>(null);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    // localStorage から診断結果データを取得
+    const storedManagementScoreData = localStorage.getItem('managementScoreData');
+    const storedAnswers = localStorage.getItem('diagnosticAnswers');
+
+    if (storedManagementScoreData) {
+      const parsedData = JSON.parse(storedManagementScoreData) as ManagementScoreData;
+      setManagementScoreData(parsedData);
+      
+      // スコア計算（小数点以下四捨五入）
+      const calculatedScore = Math.round(parsedData.totalScore);
+      setScore(calculatedScore);
+    } else {
+      // データがない場合はデモデータを表示（本番では診断ページにリダイレクトすべき）
+      console.warn('診断データが見つかりません。デモデータを表示します。');
+      setScore(73);
+    }
+
+    if (storedAnswers) {
+      setAnswers(JSON.parse(storedAnswers));
+    }
+
+    setLoading(false);
+  }, [navigate]);
 
   const personalityScores: PersonalityScore[] = [
     {
@@ -81,6 +117,56 @@ export const ResultPage = (): JSX.Element => {
     }
   ];
 
+  // スコアに基づいたメッセージを取得する関数
+  const getScoreMessage = (score: number) => {
+    if (score >= 80) {
+      return "経営者・CxOとしての高い適性があります。大局的視点と実行力のバランスが取れています。";
+    } else if (score >= 60) {
+      return "経営的視点を持ったリーダーとしての素質があります。組織の中で変革を起こす力があります。";
+    } else if (score >= 40) {
+      return "実務者としての強みに加え、リーダーシップの素質もあります。より高い視点で物事を捉える練習が必要です。";
+    } else {
+      return "特定の専門領域での活躍が期待できます。チームの一員として、組織に貢献する力があります。";
+    }
+  };
+
+  // スコアに基づいた強みを取得する関数
+  const getStrengths = (score: number) => {
+    if (score >= 80) {
+      return [
+        { title: "優れた戦略的思考", description: "長期的視点で組織の進むべき道を描く力" },
+        { title: "危機対応力", description: "不確実な状況下での意思決定と実行力" },
+        { title: "ビジョン構築力", description: "組織全体を巻き込む明確なビジョンを描く力" }
+      ];
+    } else if (score >= 60) {
+      return [
+        { title: "関係構築力", description: "立場や背景の異なる人ともスムーズに信頼関係を築く力" },
+        { title: "現場理解力", description: "抽象的な戦略を、具体的な現場感覚で捉える力" },
+        { title: "共創型スタンス", description: "他者とともに形をつくる、柔軟な巻き込み力" }
+      ];
+    } else if (score >= 40) {
+      return [
+        { title: "実行力", description: "指示された方針を確実に実行に移す能力" },
+        { title: "分析力", description: "物事を論理的に分解して考えることができる" },
+        { title: "協調性", description: "チームメンバーとの円滑な協力関係を構築できる" }
+      ];
+    } else {
+      return [
+        { title: "専門性", description: "特定の領域での深い知識と経験" },
+        { title: "細部への配慮", description: "細かな点にも注意を払う丁寧さ" },
+        { title: "着実な姿勢", description: "地に足のついた堅実なアプローチ" }
+      ];
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-xl">結果を読み込んでいます...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="bg-[#ebf6f1] w-full">
@@ -94,9 +180,13 @@ export const ResultPage = (): JSX.Element => {
               <div className="text-3xl text-[#343C4B]">点</div>
             </div>
             <div className="text-[#343C4B] text-sm leading-relaxed">
-              経営に必要な6つの視点から分析した結果、現場とCxOの立ち位置を理解し、チームをまとめるスキルが高く評価されました。
+              {getScoreMessage(score)}
               <br /><br />
-              あなたは、組織の中で調和を保ちながら、チームメンバーの力を最大限に引き出すことができる素質を持っています。
+              {managementScoreData && (
+                <span className="text-xs text-gray-600">
+                  回答した経営質問：{managementScoreData.answeredCount}/10問
+                </span>
+              )}
             </div>
           </div>
           <img 
@@ -123,29 +213,17 @@ export const ResultPage = (): JSX.Element => {
             <div className="flex flex-col md:flex-row gap-8 md:gap-12">
               <CircularProgress value={score} />
               <div className="flex-1">
-                <p className="text-sm mb-4">CxOとしての資質は+2の傾向であり、特に以下の強みが見られます：</p>
+                <p className="text-sm mb-4">あなたのCxO適正スコアは{score}点で、特に以下の強みが見られます：</p>
                 <ul className="space-y-4">
-                  <li className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <img src="/Check.svg" alt="check" className="w-4 h-4" />
-                      <span className="font-bold">関係構築力</span>
-                    </div>
-                    <div className="text-sm text-gray-600 ml-6">立場や背景の異なる人ともスムーズに信頼関係を築く力</div>
-                  </li>
-                  <li className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <img src="/Check.svg" alt="check" className="w-4 h-4" />
-                      <span className="font-bold">現場理解力</span>
-                    </div>
-                    <div className="text-sm text-gray-600 ml-6">抽象的な戦略を、具体的な現場感覚で捉える力</div>
-                  </li>
-                  <li className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <img src="/Check.svg" alt="check" className="w-4 h-4" />
-                      <span className="font-bold">共創型スタンス</span>
-                    </div>
-                    <div className="text-sm text-gray-600 ml-6">他者とともに形をつくる、柔軟な巻き込み力</div>
-                  </li>
+                  {getStrengths(score).map((strength, index) => (
+                    <li key={index} className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <img src="/Check.svg" alt="check" className="w-4 h-4" />
+                        <span className="font-bold">{strength.title}</span>
+                      </div>
+                      <div className="text-sm text-gray-600 ml-6">{strength.description}</div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
