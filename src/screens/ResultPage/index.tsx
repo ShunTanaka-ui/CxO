@@ -65,36 +65,36 @@ export const ResultPage = (): JSX.Element => {
 
   const personalityScores: PersonalityScore[] = [
     {
-      leftLabel: "創造型",
-      rightLabel: "拡大型",
+      leftLabel: "創造・開拓型",
+      rightLabel: "拡大・効率型",
       percentage: 72,
       color: "bg-[#4298B4]",
-      type: "拡大型",
-      description: "考え抜いたうえで一歩を踏み出すタイプ"
+      type: "拡大・効率型",
+      description: "既存の事業や仕組みを成長させ、効率化することに強みを持つタイプ"
     },
     {
-      leftLabel: "行動型",
-      rightLabel: "計画型",
+      leftLabel: "直感・行動型",
+      rightLabel: "分析・計画型",
       percentage: 53,
       color: "bg-[#E4AE3A]",
-      type: "計画型",
-      description: "考え抜いたうえで一歩を踏み出すタイプ"
+      type: "分析・計画型",
+      description: "データと論理に基づいて慎重に計画を立てることを重視するタイプ"
     },
     {
-      leftLabel: "ビジョン型",
-      rightLabel: "尊重型",
+      leftLabel: "ビジョン提示型",
+      rightLabel: "メンバー尊重型",
       percentage: 65,
       color: "bg-[#33A474]",
-      type: "尊重型",
-      description: "考え抜いたうえで一歩を踏み出すタイプ"
+      type: "メンバー尊重型",
+      description: "メンバーの意見を尊重し、チームの力を引き出すことを大切にするタイプ"
     },
     {
-      leftLabel: "市場型",
-      rightLabel: "チーム型",
+      leftLabel: "市場・顧客志向",
+      rightLabel: "チーム・文化志向",
       percentage: 58,
       color: "bg-[#F25E62]",
-      type: "チーム型",
-      description: "考え抜いたうえで一歩を踏み出すタイプ"
+      type: "チーム・文化志向",
+      description: "組織の文化や風土、チームの結束力を重視するタイプ"
     }
   ];
 

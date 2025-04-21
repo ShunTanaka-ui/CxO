@@ -10,6 +10,9 @@ interface PersonalityScore {
 }
 
 export const PersonalityScoreBar = ({ score }: { score: PersonalityScore }): JSX.Element => {
+  // タイプが「志向」で終わるかどうかをチェック
+  const isShikoType = score.type.endsWith('志向');
+
   return (
     <div className="mb-6 md:mb-8 last:mb-0">
       <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8">
@@ -20,7 +23,7 @@ export const PersonalityScoreBar = ({ score }: { score: PersonalityScore }): JSX
               style={{ left: `${score.percentage}%`, top: '-27px', transform: 'translateX(-50%)' }}
             >
               <span className={`text-xs md:text-sm font-bold ${score.color.replace('bg-', 'text-')}`}>
-                {score.percentage}%{score.type}
+                {score.percentage}% {score.type}
               </span>
             </div>
             <div className="relative mt-8">
@@ -44,7 +47,7 @@ export const PersonalityScoreBar = ({ score }: { score: PersonalityScore }): JSX
         </div>
         <div className="w-full md:w-[240px] md:flex-shrink-0">
           <div className={`text-xs md:text-sm font-bold mb-1 ${score.color.replace('bg-', 'text-')}`}>
-            {score.type}型寄り
+            {isShikoType ? `${score.type}が強い` : `${score.type}寄り`}
           </div>
           <span className="text-xs md:text-sm text-gray-600">{score.description}</span>
         </div>
