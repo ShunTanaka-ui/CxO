@@ -148,7 +148,7 @@ export const BenefitsSection = (): JSX.Element => {
             className={`w-full md:w-[300px] rounded-[8.27px] overflow-hidden ${card.borderColor} shadow-none`}
           >
             <CardHeader
-              className={`px-0 py-[16.55px] ${card.bgColor} -mx-[15.91px] w-full md:w-[331.82px]`}
+              className={`px-4 md:px-6 py-[16.55px] ${card.bgColor} w-full`}
             >
               <CardTitle className="w-full h-[24.84px] text-[#343c4b] text-lg md:text-xl tracking-[-0.04px] leading-[24.8px] [font-family:'Noto_Sans_JP',Helvetica] font-bold text-center">
                 {card.title}
