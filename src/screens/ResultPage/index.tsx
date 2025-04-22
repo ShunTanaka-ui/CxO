@@ -10,7 +10,6 @@ import { EnvironmentPoints } from "./components/EnvironmentPoints";
 import { CxoPassRegistration } from "./components/CxoPassRegistration";
 import { ShareSection } from "./components/ShareSection";
 import { useNavigate } from "react-router-dom";
-import { loadResultTexts, getResultTextByTypePattern, ResultText, getEnvironmentPointsFromResultText } from "../../utils/resultTextsLoader";
 
 interface PersonalityScore {
   leftLabel: string;
@@ -149,8 +148,6 @@ export const ResultPage = (): JSX.Element => {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [personalityScores, setPersonalityScores] = useState<PersonalityScore[]>([]);
-  const [resultText, setResultText] = useState<ResultText | null>(null);
-  const [resultTexts, setResultTexts] = useState<ResultText[]>([]);
   // タイプ分類の結果を保持するステート
   const [typeResult, setTypeResult] = useState<PersonalityTypeResult>({
     typePattern: 'AABB',
@@ -159,105 +156,78 @@ export const ResultPage = (): JSX.Element => {
   });
 
   useEffect(() => {
-    // CSVデータを読み込み
-    const loadData = async () => {
-      try {
-        // CSV結果テキストを読み込み
-        const texts = await loadResultTexts();
-        setResultTexts(texts);
-        console.log("CSVデータ読み込み成功:", texts.length, "件のデータを取得");
-        
-        // localStorage から診断結果データを取得
-        const storedManagementScoreData = localStorage.getItem('managementScoreData');
-        const storedPersonalityScoreData = localStorage.getItem('personalityScoreData');
-        const storedAnswers = localStorage.getItem('diagnosticAnswers');
+    // localStorage から診断結果データを取得
+    const storedManagementScoreData = localStorage.getItem('managementScoreData');
+    const storedPersonalityScoreData = localStorage.getItem('personalityScoreData');
+    const storedAnswers = localStorage.getItem('diagnosticAnswers');
 
-        if (storedManagementScoreData) {
-          const parsedData = JSON.parse(storedManagementScoreData) as ManagementScoreData;
-          setManagementScoreData(parsedData);
-          
-          // スコア計算（小数点以下四捨五入）
-          const calculatedScore = Math.round(parsedData.totalScore);
-          setScore(calculatedScore);
-        } else {
-          // データがない場合はデモデータを表示（本番では診断ページにリダイレクトすべき）
-          console.warn('診断データが見つかりません。デモデータを表示します。');
-          setScore(73);
-        }
+    if (storedManagementScoreData) {
+      const parsedData = JSON.parse(storedManagementScoreData) as ManagementScoreData;
+      setManagementScoreData(parsedData);
+      
+      // スコア計算（小数点以下四捨五入）
+      const calculatedScore = Math.round(parsedData.totalScore);
+      setScore(calculatedScore);
+    } else {
+      // データがない場合はデモデータを表示（本番では診断ページにリダイレクトすべき）
+      console.warn('診断データが見つかりません。デモデータを表示します。');
+      setScore(73);
+    }
 
-        if (storedPersonalityScoreData) {
-          const parsedPersonalityData = JSON.parse(storedPersonalityScoreData) as PersonalityScoreData;
-          setPersonalityScoreData(parsedPersonalityData);
-          
-          // パーソナリティスコアの生成
-          const generatedScores = generatePersonalityScores(parsedPersonalityData);
-          setPersonalityScores(generatedScores);
-          
-          // パーソナリティタイプの判定
-          const typeResult = determinePersonalityType(parsedPersonalityData);
-          console.log(`判定されたタイプ分類: ${typeResult.typePattern}, ${typeResult.classificationType}`); // デバッグ用ログ出力
-          setTypeResult(typeResult);
-          
-          // タイプパターンに基づいた結果テキストの取得
-          const matchedResultText = getResultTextByTypePattern(texts, typeResult.typePattern);
-          setResultText(matchedResultText || null);
-          console.log("タイプパターンに基づく結果テキスト:", matchedResultText?.title || "デフォルト");
-        } else {
-          // デモデータを表示
-          console.warn('パーソナリティデータが見つかりません。デモデータを表示します。');
-          setPersonalityScores(demoPersonalityScores);
-          // デモ用のタイプ分類
-          const demoTypeResult: PersonalityTypeResult = {
-            typePattern: 'AABB',
-            classificationType: '調和型',
-            typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
-          };
-          setTypeResult(demoTypeResult);
-          
-          // デモ用の結果テキスト
-          const demoResultText = getResultTextByTypePattern(texts, demoTypeResult.typePattern);
-          setResultText(demoResultText || null);
-        }
+    if (storedPersonalityScoreData) {
+      const parsedPersonalityData = JSON.parse(storedPersonalityScoreData) as PersonalityScoreData;
+      setPersonalityScoreData(parsedPersonalityData);
+      
+      // パーソナリティスコアの生成
+      const generatedScores = generatePersonalityScores(parsedPersonalityData);
+      setPersonalityScores(generatedScores);
+      
+      // パーソナリティタイプの判定
+      const typeResult = determinePersonalityType(parsedPersonalityData);
+      console.log(`判定されたタイプ分類: ${typeResult.typePattern}, ${typeResult.classificationType}`); // デバッグ用ログ出力
+      setTypeResult(typeResult);
+    } else {
+      // デモデータを表示
+      console.warn('パーソナリティデータが見つかりません。デモデータを表示します。');
+      setPersonalityScores(demoPersonalityScores);
+      // デモ用のタイプ分類
+      setTypeResult({
+        typePattern: 'AABB',
+        classificationType: '調和型',
+        typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
+      });
+    }
 
-        if (storedAnswers) {
-          setAnswers(JSON.parse(storedAnswers));
-        }
-      } catch (error) {
-        console.error("データ読み込みエラー:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (storedAnswers) {
+      setAnswers(JSON.parse(storedAnswers));
+    }
 
-    loadData();
+    setLoading(false);
   }, [navigate]);
 
   // パーソナリティデータからタイプパターンを判定し、対応する分類とタイプ名を返す関数
   const determinePersonalityType = (data: PersonalityScoreData): PersonalityTypeResult => {
-    // タイプパターンを生成 (例: AABB)
+    // 各軸の優位タイプから4文字のタイプパターンを作成
     const typePattern = 
       data.axis1.dominantType + 
       data.axis2.dominantType + 
       data.axis3.dominantType + 
       data.axis4.dominantType;
     
-    // 対応するタイプ情報を取得
-    const typeInfo = personalityTypeMapping[typePattern];
+    // マッピングテーブルから対応する結果を取得
+    const result = personalityTypeMapping[typePattern];
     
-    if (typeInfo) {
+    if (result) {
+      return result;
+    } else {
+      // 万が一対応するパターンがない場合のフォールバック
+      console.warn(`未知のタイプパターン: ${typePattern}`);
       return {
-        typePattern: typeInfo.typePattern,
-        classificationType: typeInfo.classificationType as '類似型' | '調和型' | '真逆型',
-        typeDescription: typeInfo.typeDescription
+        typePattern,
+        classificationType: '調和型',
+        typeDescription: 'チームの和を力に、組織の成長に貢献する、バランス型リーダー'
       };
     }
-    
-    // デフォルト値
-    return {
-      typePattern: 'AABB',
-      classificationType: '調和型',
-      typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
-    };
   };
 
   // パーソナリティスコアデータをもとに表示用のPersonalityScoreを生成する関数
@@ -361,40 +331,248 @@ export const ResultPage = (): JSX.Element => {
     }
   ];
 
-  // タイプ分類に応じた活躍できる環境を取得する関数
+  // タイプパターンに応じた活躍できる環境を取得する関数
   const getEnvironmentPoints = (typePattern: string): EnvironmentPoint[] => {
-    if (resultText) {
-      // CSVから読み込んだ環境ポイントを使用
-      const environmentDescription = resultText.environmentDescription || '';
-      
-      // 「・」で区切られたポイントを抽出
-      const points = environmentDescription
-        .split('・')
-        .map(point => point.trim())
-        .filter(point => point.length > 0);
-      
-      // 区切られたポイントがある場合
-      if (points.length > 0) {
-        return points.map((point, index) => ({
-          title: `ポイント${index + 1}`,
-          description: point
-        }));
-      }
-      
-      // 区切りがない場合は説明文全体を1つのポイントとして返す
-      return [{
-        title: resultText.environmentTitle || "活躍できる環境",
-        description: environmentDescription
-      }];
+    switch(typePattern) {
+      case 'AAAA':
+        return [
+          { title: "革新的な組織文化", description: "既存の枠組みにとらわれず、新しいアイデアが歓迎される環境" },
+          { title: "裁量と自由度の高さ", description: "自分のビジョンを追求し、実験的な取り組みができる環境" },
+          { title: "多様な視点との出会い", description: "異なる業界や専門性を持つ人々との交流がある環境" },
+          { title: "変化の速い市場", description: "常に新しい課題があり、革新的なソリューションが求められる環境" }
+        ];
+      case 'AAAB':
+        return [
+          { title: "創造性を重視する組織", description: "アイデアの価値が認められ、それを形にするプロセスがある環境" },
+          { title: "人材育成に投資する企業", description: "メンバーの成長とチームの一体感を大切にする文化がある環境" },
+          { title: "ビジョン主導の組織", description: "明確な未来像があり、それに向かって革新を続ける環境" },
+          { title: "コラボレーションの場", description: "異なる専門性を持つ人々が協力して新しい価値を生み出す環境" }
+        ];
+      case 'AABA':
+        return [
+          { title: "顧客中心の組織", description: "市場や顧客の声を大切にし、それに応える価値創造を重視する環境" },
+          { title: "フラットな組織構造", description: "階層に関わらず意見交換ができ、アイデアが尊重される環境" },
+          { title: "敏捷性のある組織", description: "状況の変化に素早く対応し、柔軟な意思決定ができる環境" },
+          { title: "対話を重視する文化", description: "オープンなコミュニケーションと建設的なフィードバックがある環境" }
+        ];
+      case 'AABB':
+        return [
+          { title: "共創型の組織文化", description: "メンバー全員の力を活かし、新しい価値を生み出す環境" },
+          { title: "心理的安全性の高いチーム", description: "失敗を恐れず挑戦でき、互いに支え合える環境" },
+          { title: "目的志向の組織", description: "社会的意義のある目標に向かって、革新的な取り組みができる環境" },
+          { title: "多様性を重視する組織", description: "異なる視点や経験が尊重され、それが創造の源泉となる環境" }
+        ];
+      case 'BBAA':
+        return [
+          { title: "戦略重視の組織", description: "データと市場分析に基づく意思決定を重視する環境" },
+          { title: "成果志向の文化", description: "明確な目標設定と効率的な実行が評価される環境" },
+          { title: "成長産業・市場", description: "拡大フェーズにあり、戦略的な意思決定で成長を加速できる環境" },
+          { title: "構造化されたプロセス", description: "効率と効果を最大化するための仕組みがある環境" }
+        ];
+      case 'BBAB':
+        return [
+          { title: "長期的視点の組織", description: "短期的な利益だけでなく、持続的な成長を重視する環境" },
+          { title: "ビジョンと実行のバランス", description: "明確な方向性と着実な実行計画が調和している環境" },
+          { title: "組織文化を大切にする企業", description: "価値観の共有と組織の一体感を重視する環境" },
+          { title: "安定と革新のバランス", description: "堅実な基盤の上に、計画的な変革を推進できる環境" }
+        ];
+      case 'BBBA':
+        return [
+          { title: "対話と分析のバランス", description: "データ分析と人間的な対話の両方を重視する環境" },
+          { title: "人材重視の組織", description: "人材の多様性と専門性を活かした意思決定ができる環境" },
+          { title: "顧客との強い関係性", description: "顧客ニーズに深く寄り添い、信頼関係を構築できる環境" },
+          { title: "計画的な変化管理", description: "変革を恐れず、しかし慎重にプロセスを進められる環境" }
+        ];
+      case 'BBBB':
+        return [
+          { title: "価値観を共有する組織", description: "明確な企業理念と文化が浸透し、長期的な視点で行動できる環境" },
+          { title: "チームワークを重視する文化", description: "個人の成果よりも、チーム全体の成功が評価される環境" },
+          { title: "人材育成に力を入れる企業", description: "長期的な人材開発と信頼関係構築を重視する環境" },
+          { title: "持続可能な成長モデル", description: "急激な変化よりも、着実で持続的な発展を目指す環境" }
+        ];
+      case 'ABAA':
+        return [
+          { title: "戦略的イノベーション", description: "分析と創造のバランスがとれた、計画的な革新を推進する環境" },
+          { title: "市場主導の組織", description: "顧客や市場の声を重視し、それに応える価値創造ができる環境" },
+          { title: "構造化された創造プロセス", description: "アイデア創出から実装までの明確なプロセスがある環境" },
+          { title: "データ活用の文化", description: "直感だけでなく、データに基づいた意思決定を重視する環境" }
+        ];
+      case 'ABAB':
+        return [
+          { title: "長期ビジョンを持つ組織", description: "5年、10年先を見据えた戦略と組織設計ができる環境" },
+          { title: "文化と戦略の一体化", description: "企業文化と事業戦略が密接に連携している環境" },
+          { title: "計画的な変革", description: "ビジョン実現に向けた段階的で着実な変革を推進できる環境" },
+          { title: "持続可能なイノベーション", description: "短期的な成果と長期的な変革のバランスがとれた環境" }
+        ];
+      case 'ABBA':
+        return [
+          { title: "協調的な革新環境", description: "チームの知恵を集め、データに基づいた革新ができる環境" },
+          { title: "顧客との共創", description: "顧客との対話から新たな価値を生み出すプロセスがある環境" },
+          { title: "計画的なリスクテイク", description: "慎重な分析の上で、適切なリスクを取れる文化がある環境" },
+          { title: "多様な専門性の融合", description: "異なる専門知識や経験が尊重され、統合される環境" }
+        ];
+      case 'ABBB':
+        return [
+          { title: "人間中心の組織設計", description: "人材の強みを活かした組織構造と文化がある環境" },
+          { title: "計画的な組織開発", description: "人と組織のポテンシャルを計画的に引き出す取り組みがある環境" },
+          { title: "信頼関係に基づくリーダーシップ", description: "権威ではなく信頼に基づいて影響力を発揮できる環境" },
+          { title: "目的と価値観の共有", description: "組織の存在意義と価値観が明確に共有されている環境" }
+        ];
+      case 'BAAA':
+        return [
+          { title: "アジャイルな組織", description: "素早い意思決定と実行が可能で、機会を逃さない環境" },
+          { title: "成長市場・急拡大フェーズ", description: "迅速な行動と決断が成果につながる成長段階にある環境" },
+          { title: "実験を奨励する文化", description: "試行錯誤が評価され、失敗から学ぶ姿勢が尊重される環境" },
+          { title: "実践的イノベーション", description: "理論よりも実践を通じて、新しい価値を生み出せる環境" }
+        ];
+      case 'BAAB':
+        return [
+          { title: "行動重視の組織文化", description: "計画よりも行動を優先し、結果を出せる人材が評価される環境" },
+          { title: "変革期の組織", description: "大きな変化の中で、リーダーシップを発揮できる機会がある環境" },
+          { title: "チーム育成の機会", description: "メンバーの成長を促しながら、変革を推進できる環境" },
+          { title: "ビジョン実現への情熱", description: "組織全体が共通の目標に向かって情熱的に取り組む環境" }
+        ];
+      case 'BABA':
+        return [
+          { title: "現場主義の組織", description: "現場の声と顧客のフィードバックを重視する文化がある環境" },
+          { title: "フラットでスピーディな組織", description: "階層にとらわれず、迅速な意思決定と行動ができる環境" },
+          { title: "顧客接点の多い業務", description: "市場や顧客との直接的な対話から、改善を推進できる環境" },
+          { title: "改善志向の強い文化", description: "常に現状を見直し、より良い方法を模索する姿勢がある環境" }
+        ];
+      case 'BABB':
+        return [
+          { title: "人材育成型リーダーシップ", description: "メンバーの成長をサポートしながら成果を出せる環境" },
+          { title: "実践的なチームビルディング", description: "日々の業務を通じて、チームの結束を強められる環境" },
+          { title: "現場での意思決定権限", description: "現場レベルで適切な判断と行動ができる裁量がある環境" },
+          { title: "価値観を共有するコミュニティ", description: "共通の目的と価値観を持ったチームで活躍できる環境" }
+        ];
+      default:
+        return [
+          { title: "バランスのとれた組織", description: "多様な視点と手法が尊重され、状況に応じて柔軟に対応できる環境" },
+          { title: "調和のとれたチーム", description: "異なる強みを持つメンバーが互いを補完し合える環境" },
+          { title: "成長機会の豊富さ", description: "様々な経験を通じて、多面的なスキル開発ができる環境" },
+          { title: "適応力を重視する文化", description: "変化を受け入れ、状況に応じて最適な対応ができる環境" }
+        ];
+    }
+  };
+
+  // タイプパターンに応じた「あなたを一言で表すと...」の説明文を取得する関数
+  const getTypeDescription = (typePattern: string): string => {
+    switch(typePattern) {
+      case 'AAAA':
+        return "常に新しいアイデアを追求し、それを情熱的に実現に導くあなたは、組織に変革の風を吹き込む存在です。あなたのビジョンと行動力が、新たな地平を切り開くきっかけとなるでしょう。";
+      case 'AAAB':
+        return "革新性と調和を両立させるあなたは、新しい価値を創造しながらも、人と組織の成長を大切にします。あなたの存在が、創造的でありながら一体感のある組織文化を育みます。";
+      case 'AABA':
+        return "市場の声に敏感に反応し、チームと共に新しい価値を生み出すあなたは、変化する環境の中で組織を導く力を持っています。あなたの柔軟性と共感力が、イノベーションの源となります。";
+      case 'AABB':
+        return "チームの力を活かして新しい価値を創造するあなたは、人と組織の可能性を最大限に引き出します。あなたがいることで、調和のとれた革新的な環境が生まれるでしょう。";
+      case 'BBAA':
+        return "分析力と戦略的思考を持ち、市場を見据えた決断を下すあなたは、組織の成長を確実に導く存在です。あなたの冷静な判断力と実行力が、ビジネスの拡大と成功をもたらします。";
+      case 'BBAB':
+        return "ビジョンと計画を組み合わせ、組織の未来を設計するあなたは、持続的な成長の基盤を築く存在です。あなたの長期的視点と組織への理解が、安定と発展の両立を可能にします。";
+      case 'BBBA':
+        return "分析的思考とコミュニケーション能力を兼ね備え、市場の変化に対応するあなたは、組織の羅針盤となる存在です。あなたの計画性と柔軟性が、環境変化の中での安定した進化を支えます。";
+      case 'BBBB':
+        return "組織の文化と安定を重視し、人材の力を育むあなたは、持続可能な成長の礎を築く存在です。あなたの着実なアプローチと人間関係構築力が、長期的な成功と一体感を生み出します。";
+      case 'ABAA':
+        return "創造性と論理的思考を持ち、市場機会を的確に捉えるあなたは、イノベーションに戦略をもたらす存在です。あなたの分析力と創造力が、組織に新たな事業機会をもたらします。";
+      case 'ABAB':
+        return "ビジョンと計画性を併せ持ち、組織の未来図を描くあなたは、長期的視点での変革を導く存在です。あなたの思考の深さと包括的な視点が、組織の持続的な進化を実現します。";
+      case 'ABBA':
+        return "計画性とチーム志向を持ち、市場を見据えた革新を追求するあなたは、組織の知恵を結集する存在です。あなたの慎重さと挑戦心が、持続可能なイノベーションを生み出します。";
+      case 'ABBB':
+        return "分析力と人間関係構築能力を持ち、組織の潜在力を引き出すあなたは、人と組織を育てる建築家です。あなたの計画的アプローチと人間理解が、強固な組織基盤を築きます。";
+      case 'BAAA':
+        return "行動力と革新性を持ち、市場機会に素早く対応するあなたは、組織に活力とスピード感をもたらす存在です。あなたの即断即決と創造性が、ビジネスの急成長を実現します。";
+      case 'BAAB':
+        return "実行力と情熱を持ち、組織変革を推進するあなたは、ビジョンを現実に変える原動力です。あなたの行動力とチーム育成への関心が、組織の変革と成長を加速させます。";
+      case 'BABA':
+        return "現場感覚と市場志向を持ち、迅速な改善を進めるあなたは、組織と市場をつなぐ懸け橋です。あなたの実践的アプローチと対話力が、顧客価値の向上と組織の進化を導きます。";
+      case 'BABB':
+        return "行動力と人材重視の姿勢を持ち、チームの力で成果を出すあなたは、組織の現場力を高める存在です。あなたの実践的リーダーシップと人間理解が、強いチームと文化を育みます。";
+      default:
+        return "経営の視座を持ちながら、現場の空気や感情にも鋭敏なあなたは、チームの温度を読み、風通しのいい空間をつくる存在。そんなあなたがいることで、組織に\"流れ\"が生まれ、変化が動き出します。";
+    }
+  };
+
+  // スコアに基づいたメッセージを取得する関数
+  const getScoreMessage = (score: number) => {
+    if (score >= 80) {
+      return "経営者・CxOとしての高い適性があります。大局的視点と実行力のバランスが取れています。";
+    } else if (score >= 60) {
+      return "経営的視点を持ったリーダーとしての素質があります。組織の中で変革を起こす力があります。";
+    } else if (score >= 40) {
+      return "実務者としての強みに加え、リーダーシップの素質もあります。より高い視点で物事を捉える練習が必要です。";
+    } else {
+      return "特定の専門領域での活躍が期待できます。チームの一員として、組織に貢献する力があります。";
+    }
+  };
+
+  // スコアと質問の回答に基づいた強みを取得する関数
+  const getStrengths = (score: number, answers: Record<number, number> = {}) => {
+    // 経営質問のIDリスト
+    const managementQuestionIds = [1, 4, 8, 16, 19, 20, 26, 29];
+    
+    // 回答された経営質問のスコアを取得（5段階評価を維持）
+    const questionScores = managementQuestionIds
+      .filter(id => answers[id] !== undefined)
+      .map(id => ({ id, score: answers[id] }))
+      .sort((a, b) => b.score - a.score); // スコアが高い順にソート
+    
+    // スコアに基づいた基本的な強みセット
+    let baseStrengths: { title: string, description: string }[] = [];
+    
+    if (score >= 80) {
+      baseStrengths = [
+        { title: "優れた戦略的思考", description: "長期的視点で組織の進むべき道を描く力" },
+        { title: "ビジョン構築力", description: "組織全体を巻き込む明確なビジョンを描く力" }
+      ];
+    } else if (score >= 60) {
+      baseStrengths = [
+        { title: "関係構築力", description: "立場や背景の異なる人ともスムーズに信頼関係を築く力" },
+        { title: "現場理解力", description: "抽象的な戦略を、具体的な現場感覚で捉える力" }
+      ];
+    } else if (score >= 40) {
+      baseStrengths = [
+        { title: "実行力", description: "指示された方針を確実に実行に移す能力" },
+        { title: "分析力", description: "物事を論理的に分解して考えることができる" }
+      ];
+    } else {
+      baseStrengths = [
+        { title: "専門性", description: "特定の領域での深い知識と経験" },
+        { title: "着実な姿勢", description: "地に足のついた堅実なアプローチ" }
+      ];
     }
     
-    // 既存のハードコーディングされたデータをフォールバックとして使用
-    return [
-      { title: "バランスのとれた組織", description: "多様な視点と手法が尊重され、状況に応じて柔軟に対応できる環境" },
-      { title: "調和のとれたチーム", description: "異なる強みを持つメンバーが互いを補完し合える環境" },
-      { title: "成長機会の豊富さ", description: "様々な経験を通じて、多面的なスキル開発ができる環境" },
-      { title: "適応力を重視する文化", description: "変化を受け入れ、状況に応じて最適な対応ができる環境" }
-    ];
+    // 回答から強みを追加
+    let strengthsFromAnswers: { title: string, description: string }[] = [];
+    
+    // 回答がある場合、上位3つの質問から強みを抽出
+    if (questionScores.length > 0) {
+      // スコアが4以上（「そう思う」以上）の質問から強みを抽出
+      strengthsFromAnswers = questionScores
+        .filter(item => item.score >= 4)
+        .slice(0, 3) // 上位3つまで
+        .map(item => managementStrengthsMapping[item.id]);
+    }
+    
+    // 必要な強みの数を取得（足りない場合はbaseStrengthsから補完）
+    const requiredCount = 3;
+    let result: { title: string, description: string }[] = [...strengthsFromAnswers];
+    
+    // 3つに満たない場合、baseStrengthsから足りない分を追加
+    if (result.length < requiredCount) {
+      // すでに含まれていないbaseStrengthsを追加
+      const titlesToExclude = result.map(s => s.title);
+      const additionalStrengths = baseStrengths
+        .filter(s => !titlesToExclude.includes(s.title))
+        .slice(0, requiredCount - result.length);
+      
+      result = [...result, ...additionalStrengths];
+    }
+    
+    return result.slice(0, requiredCount);
   };
 
   // タイプ分類に応じた背景色と画像を取得する関数
@@ -491,125 +669,6 @@ export const ResultPage = (): JSX.Element => {
     }
   };
 
-  // スコアに基づいたメッセージを取得する関数
-  const getScoreMessage = (score: number) => {
-    if (score >= 80) {
-      return "経営者・CxOとしての高い適性があります。大局的視点と実行力のバランスが取れています。";
-    } else if (score >= 60) {
-      return "経営的視点を持ったリーダーとしての素質があります。組織の中で変革を起こす力があります。";
-    } else if (score >= 40) {
-      return "実務者としての強みに加え、リーダーシップの素質もあります。より高い視点で物事を捉える練習が必要です。";
-    } else {
-      return "特定の専門領域での活躍が期待できます。チームの一員として、組織に貢献する力があります。";
-    }
-  };
-
-  // スコアと質問の回答に基づいた強みを取得する関数
-  const getStrengths = (score: number, answers: Record<number, number> = {}) => {
-    // 経営質問のIDリスト
-    const managementQuestionIds = [1, 4, 8, 16, 19, 20, 26, 29];
-    
-    // 回答された経営質問のスコアを取得（5段階評価を維持）
-    const questionScores = managementQuestionIds
-      .filter(id => answers[id] !== undefined)
-      .map(id => ({ id, score: answers[id] }))
-      .sort((a, b) => b.score - a.score); // スコアが高い順にソート
-    
-    // スコアに基づいた基本的な強みセット
-    let baseStrengths: { title: string, description: string }[] = [];
-    
-    if (score >= 80) {
-      baseStrengths = [
-        { title: "優れた戦略的思考", description: "長期的視点で組織の進むべき道を描く力" },
-        { title: "ビジョン構築力", description: "組織全体を巻き込む明確なビジョンを描く力" }
-      ];
-    } else if (score >= 60) {
-      baseStrengths = [
-        { title: "関係構築力", description: "立場や背景の異なる人ともスムーズに信頼関係を築く力" },
-        { title: "現場理解力", description: "抽象的な戦略を、具体的な現場感覚で捉える力" }
-      ];
-    } else if (score >= 40) {
-      baseStrengths = [
-        { title: "実行力", description: "指示された方針を確実に実行に移す能力" },
-        { title: "分析力", description: "物事を論理的に分解して考えることができる" }
-      ];
-    } else {
-      baseStrengths = [
-        { title: "専門性", description: "特定の領域での深い知識と経験" },
-        { title: "着実な姿勢", description: "地に足のついた堅実なアプローチ" }
-      ];
-    }
-    
-    // 回答から強みを追加
-    let strengthsFromAnswers: { title: string, description: string }[] = [];
-    
-    // 回答がある場合、上位3つの質問から強みを抽出
-    if (questionScores.length > 0) {
-      // スコアが4以上（「そう思う」以上）の質問から強みを抽出
-      strengthsFromAnswers = questionScores
-        .filter(item => item.score >= 4)
-        .slice(0, 3) // 上位3つまで
-        .map(item => managementStrengthsMapping[item.id]);
-    }
-    
-    // 必要な強みの数を取得（足りない場合はbaseStrengthsから補完）
-    const requiredCount = 3;
-    let result: { title: string, description: string }[] = [...strengthsFromAnswers];
-    
-    // 3つに満たない場合、baseStrengthsから足りない分を追加
-    if (result.length < requiredCount) {
-      // すでに含まれていないbaseStrengthsを追加
-      const titlesToExclude = result.map(s => s.title);
-      const additionalStrengths = baseStrengths
-        .filter(s => !titlesToExclude.includes(s.title))
-        .slice(0, requiredCount - result.length);
-      
-      result = [...result, ...additionalStrengths];
-    }
-    
-    return result.slice(0, requiredCount);
-  };
-
-  // タイプパターンに応じた「あなたを一言で表すと...」の説明文を取得する関数
-  const getTypeDescription = (typePattern: string): string => {
-    switch(typePattern) {
-      case 'AAAA':
-        return "常に新しいアイデアを追求し、それを情熱的に実現に導くあなたは、組織に変革の風を吹き込む存在です。あなたのビジョンと行動力が、新たな地平を切り開くきっかけとなるでしょう。";
-      case 'AAAB':
-        return "革新性と調和を両立させるあなたは、新しい価値を創造しながらも、人と組織の成長を大切にします。あなたの存在が、創造的でありながら一体感のある組織文化を育みます。";
-      case 'AABA':
-        return "市場の声に敏感に反応し、チームと共に新しい価値を生み出すあなたは、変化する環境の中で組織を導く力を持っています。あなたの柔軟性と共感力が、イノベーションの源となります。";
-      case 'AABB':
-        return "チームの力を活かして新しい価値を創造するあなたは、人と組織の可能性を最大限に引き出します。あなたがいることで、調和のとれた革新的な環境が生まれるでしょう。";
-      case 'BBAA':
-        return "分析力と戦略的思考を持ち、市場を見据えた決断を下すあなたは、組織の成長を確実に導く存在です。あなたの冷静な判断力と実行力が、ビジネスの拡大と成功をもたらします。";
-      case 'BBAB':
-        return "ビジョンと計画を組み合わせ、組織の未来を設計するあなたは、持続的な成長の基盤を築く存在です。あなたの長期的視点と組織への理解が、安定と発展の両立を可能にします。";
-      case 'BBBA':
-        return "分析的思考とコミュニケーション能力を兼ね備え、市場の変化に対応するあなたは、組織の羅針盤となる存在です。あなたの計画性と柔軟性が、環境変化の中での安定した進化を支えます。";
-      case 'BBBB':
-        return "組織の文化と安定を重視し、人材の力を育むあなたは、持続可能な成長の礎を築く存在です。あなたの着実なアプローチと人間関係構築力が、長期的な成功と一体感を生み出します。";
-      case 'ABAA':
-        return "創造性と論理的思考を持ち、市場機会を的確に捉えるあなたは、イノベーションに戦略をもたらす存在です。あなたの分析力と創造力が、組織に新たな事業機会をもたらします。";
-      case 'ABAB':
-        return "ビジョンと計画性を併せ持ち、組織の未来図を描くあなたは、長期的視点での変革を導く存在です。あなたの思考の深さと包括的な視点が、組織の持続的な進化を実現します。";
-      case 'ABBA':
-        return "計画性とチーム志向を持ち、市場を見据えた革新を追求するあなたは、組織の知恵を結集する存在です。あなたの慎重さと挑戦心が、持続可能なイノベーションを生み出します。";
-      case 'ABBB':
-        return "分析力と人間関係構築能力を持ち、組織の潜在力を引き出すあなたは、人と組織を育てる建築家です。あなたの計画的アプローチと人間理解が、強固な組織基盤を築きます。";
-      case 'BAAA':
-        return "行動力と革新性を持ち、市場機会に素早く対応するあなたは、組織に活力とスピード感をもたらす存在です。あなたの即断即決と創造性が、ビジネスの急成長を実現します。";
-      case 'BAAB':
-        return "実行力と情熱を持ち、組織変革を推進するあなたは、ビジョンを現実に変える原動力です。あなたの行動力とチーム育成への関心が、組織の変革と成長を加速させます。";
-      case 'BABA':
-        return "現場感覚と市場志向を持ち、迅速な改善を進めるあなたは、組織と市場をつなぐ懸け橋です。あなたの実践的アプローチと対話力が、顧客価値の向上と組織の進化を導きます。";
-      case 'BABB':
-        return "行動力と人材重視の姿勢を持ち、チームの力で成果を出すあなたは、組織の現場力を高める存在です。あなたの実践的リーダーシップと人間理解が、強いチームと文化を育みます。";
-      default:
-        return "経営の視座を持ちながら、現場の空気や感情にも鋭敏なあなたは、チームの温度を読み、風通しのいい空間をつくる存在。そんなあなたがいることで、組織に\"流れ\"が生まれ、変化が動き出します。";
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -639,7 +698,7 @@ export const ResultPage = (): JSX.Element => {
             </div>
           </div>
           <img 
-            src={resultText?.imageUrl || topSectionStyles.image}
+            src={topSectionStyles.image}
             alt={`${typeResult.classificationType}イラスト`}
             className="w-[280px] md:w-[320px] h-auto md:h-[213px] flex-shrink-0" 
             onError={(e) => {
@@ -660,15 +719,6 @@ export const ResultPage = (): JSX.Element => {
           <div className="text-sm text-[#343C4B] leading-relaxed mb-8 md:mb-12">
             {getResultSummary(typeResult.typePattern)}
           </div>
-
-          {/* CSV結果テキストがある場合、その内容を表示 */}
-          {resultText && (
-            <div className="w-full p-6 bg-white rounded-lg border border-gray-200 shadow-sm mb-8 md:mb-12">
-              <h3 className="text-lg md:text-xl font-bold mb-3 text-[#2B7D3C]">{resultText.title}</h3>
-              <p className="text-sm text-gray-600 mb-4">{resultText.subtitle}</p>
-              <p className="text-sm text-[#343C4B] leading-relaxed">{resultText.description}</p>
-            </div>
-          )}
 
           <div className="w-full mb-8 md:mb-12">
             <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">CxO適正スコア</h3>
@@ -745,9 +795,7 @@ export const ResultPage = (): JSX.Element => {
           </div>
 
           <div className="w-full mb-8 md:mb-12">
-            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">
-              {resultText?.environmentTitle || "あなたの活躍できる環境"}
-            </h3>
+            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたの活躍できる環境</h3>
             <EnvironmentPoints points={getEnvironmentPoints(typeResult.typePattern)} />
           </div>
 
