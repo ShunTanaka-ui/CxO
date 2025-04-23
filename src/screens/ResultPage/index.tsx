@@ -10,6 +10,7 @@ import { EnvironmentPoints } from "./components/EnvironmentPoints";
 import { CxoPassRegistration } from "./components/CxoPassRegistration";
 import { ShareSection } from "./components/ShareSection";
 import { useNavigate } from "react-router-dom";
+import { loadResultTexts, loadStrengthTexts, ResultText } from "../../utils/resultTextsLoader";
 
 interface PersonalityScore {
   leftLabel: string;
@@ -154,6 +155,8 @@ export const ResultPage = (): JSX.Element => {
     classificationType: '調和型',
     typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
   });
+  const [resultTextsMap, setResultTextsMap] = useState<Record<string, ResultText>>({});
+  const [strengthTextsMap, setStrengthTextsMap] = useState<Record<number, { title: string; description: string }>>({});
 
   useEffect(() => {
     // localStorage から診断結果データを取得
@@ -204,6 +207,18 @@ export const ResultPage = (): JSX.Element => {
 
     setLoading(false);
   }, [navigate]);
+
+  useEffect(() => {
+    // CSVデータの読み込み
+    (async () => {
+      const [resultMap, strengthMap] = await Promise.all([
+        loadResultTexts(),
+        loadStrengthTexts(),
+      ]);
+      setResultTextsMap(resultMap);
+      setStrengthTextsMap(strengthMap);
+    })();
+  }, []);
 
   // パーソナリティデータからタイプパターンを判定し、対応する分類とタイプ名を返す関数
   const determinePersonalityType = (data: PersonalityScoreData): PersonalityTypeResult => {
