@@ -138,7 +138,9 @@ const managementStrengthsMapping: Record<number, { title: string, description: s
   19: { title: "状況把握力", description: "混沌とした状況から本質を見抜き、進むべき方向を示す能力" },
   20: { title: "責任感", description: "最終的な責任者として個人的な犠牲も厭わない強い覚悟" },
   26: { title: "危機対応力", description: "危機的状況でも冷静さを保ち、打開策を見出す思考力" },
-  29: { title: "粘り強さ", description: "短期的な批判や失敗に屈せず、長期的成功に向けて挑戦し続ける力" }
+  29: { title: "粘り強さ", description: "短期的な批判や失敗に屈せず、長期的成功に向けて挑戦し続ける力" },
+  30: { title: "ビジョン共有力", description: "組織が進むべき魅力的なビジョンを描き、メンバーと共有する力" },
+  31: { title: "挑戦精神", description: "不確実性が高い状況でも新しいことに積極的に挑戦する姿勢" }
 };
 
 export const ResultPage = (): JSX.Element => {
@@ -527,7 +529,7 @@ export const ResultPage = (): JSX.Element => {
   // スコアと質問の回答に基づいた強みを取得する関数
   const getStrengths = (score: number, answers: Record<number, number> = {}) => {
     // 経営質問のIDリスト
-    const managementQuestionIds = [1, 4, 8, 16, 19, 20, 26, 29];
+    const managementQuestionIds = [1, 4, 8, 16, 19, 20, 26, 29, 30, 31];
     
     // 回答された経営質問のスコアを取得（5段階評価を維持）
     const questionScores = managementQuestionIds
