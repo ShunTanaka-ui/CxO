@@ -2,9 +2,10 @@ import React from "react";
 
 interface TypeClassificationProps {
   classificationType: '類似型' | '調和型' | '真逆型';
+  classificationSummary?: string;
 }
 
-export const TypeClassification = ({ classificationType }: TypeClassificationProps): JSX.Element => {
+export const TypeClassification = ({ classificationType, classificationSummary }: TypeClassificationProps): JSX.Element => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className={`rounded-lg p-4 border relative ${classificationType === '真逆型' ? 'border-green-500' : ''}`}>
