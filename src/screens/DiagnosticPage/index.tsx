@@ -15,6 +15,12 @@ interface PersonalityScoreData {
   axis4: { scoreA: number, scoreB: number, dominantType: 'A' | 'B', percentage: number };
 }
 
+interface ManagementScoreData {
+  totalScore: number;
+  averageScore: number;
+  answeredCount: number;
+}
+
 export const DiagnosticPage = (): JSX.Element => {
   const navigate = useNavigate();
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -69,39 +75,6 @@ export const DiagnosticPage = (): JSX.Element => {
   const answeredQuestions = Object.keys(answers).length;
   const progress = (answeredQuestions / totalQuestions) * 100;
 
-  // 経営質問のスコアを計算する関数
-  const calculateManagementScore = () => {
-    const managementQuestions = questions.filter(q => q.isManagementQuestion);
-    
-    // 経営質問が10問あることを確認
-    if (managementQuestions.length !== 10) {
-      console.warn(`経営質問の数が10問ではありません。現在は${managementQuestions.length}問です。`);
-    }
-    
-    // 各経営質問のスコアを合計（答えていない質問は0点として計算）
-    let totalScore = 0;
-    let answeredCount = 0;
-    
-    managementQuestions.forEach(question => {
-      const answer = answers[question.id];
-      if (answer !== undefined) {
-        // 5段階評価（1-5）を10点満点に変換
-        // 1 => 0点, 2 => 2.5点, 3 => 5点, 4 => 7.5点, 5 => 10点
-        const score = (answer - 1) * 2.5;
-        totalScore += score;
-        answeredCount++;
-      }
-    });
-    
-    // 全ての経営質問に回答している場合は平均を返す
-    // そうでない場合は未回答の質問を0点として扱う
-    return {
-      totalScore,
-      averageScore: answeredCount > 0 ? totalScore / 10 : 0,
-      answeredCount
-    };
-  };
-
   // パーソナリティ質問のスコアを計算する関数
   const calculatePersonalityScore = (): PersonalityScoreData => {
     // 各軸ごとの初期値を設定
@@ -120,9 +93,15 @@ export const DiagnosticPage = (): JSX.Element => {
       
       const answer = answers[question.id];
       if (answer !== undefined) {
-        // 5段階評価（1-5）を0-5点に変換
-        // 1 => 0点, 2 => 1.25点, 3 => 2.5点, 4 => 3.75点, 5 => 5点
-        const score = (answer - 1) * 1.25;
+        // 質問がisOpposite=trueの場合、スコアを逆転させる
+        let score;
+        if (question.isOpposite) {
+          // 逆転項目の場合：5→1点、4→2点、3→3点、2→4点、1→5点
+          score = (5 - answer + 1) * 1.25;
+        } else {
+          // 通常の場合：1→1点、2→2.25点、3→3.5点、4→4.75点、5→5点
+          score = (answer - 1) * 1.25;
+        }
         
         // 軸ごとにスコアを集計
         const axisKey = `axis${question.personalityAxis}` as keyof PersonalityScoreData;
@@ -154,6 +133,42 @@ export const DiagnosticPage = (): JSX.Element => {
     });
     
     return result;
+  };
+
+  // 回答から経営質問のスコアを計算する関数
+  const calculateManagementScore = (answers: Record<string, number>, questions: Question[]): ManagementScoreData => {
+    let totalScore = 0;
+    let answeredCount = 0;
+
+    // 経営質問の回答を集計
+    questions.forEach(question => {
+      if (question.isManagementQuestion) {
+        const answer = answers[question.id];
+        if (answer !== undefined) {
+          // 質問がisOpposite=trueの場合、スコアを逆転させる
+          let score;
+          if (question.isOpposite) {
+            // 逆転項目の場合：5→1点、4→2点、3→3点、2→4点、1→5点
+            score = 6 - answer;
+          } else {
+            // 通常の場合：そのままのスコアを使用
+            score = answer;
+          }
+          
+          totalScore += score;
+          answeredCount++;
+        }
+      }
+    });
+
+    // 平均スコアを計算（回答がない場合は0）
+    const averageScore = answeredCount > 0 ? totalScore / answeredCount : 0;
+
+    return {
+      totalScore,
+      averageScore,
+      answeredCount
+    };
   };
 
   useEffect(() => {
@@ -196,7 +211,7 @@ export const DiagnosticPage = (): JSX.Element => {
 
   const handleSubmit = () => {
     // 診断結果を計算し、結果ページに渡す
-    const managementScoreData = calculateManagementScore();
+    const managementScoreData = calculateManagementScore(answers, questions);
     const personalityScoreData = calculatePersonalityScore();
     
     // localStorage経由で結果を保存

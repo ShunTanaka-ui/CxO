@@ -6,6 +6,7 @@ export interface Question {
   isManagementQuestion?: boolean;
   personalityAxis?: 1 | 2 | 3 | 4;
   personalityType?: 'A' | 'B';
+  isOpposite?: boolean;
 }
 
 // 質問データをCSVから読み込む関数
@@ -40,6 +41,11 @@ export const loadQuestions = async (): Promise<Question[]> => {
       // パーソナリティタイプ
       if (row.personalityType === 'A' || row.personalityType === 'B') {
         question.personalityType = row.personalityType as 'A' | 'B';
+      }
+      
+      // 逆転項目かどうか
+      if (row.isOpposite === 'true') {
+        question.isOpposite = true;
       }
       
       return question;
