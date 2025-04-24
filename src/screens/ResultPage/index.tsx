@@ -606,15 +606,11 @@ export const ResultPage = (): JSX.Element => {
             <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたのタイプ分類：{typeResult.classificationType}</h3>
             <p className="text-sm text-[#343C4B] mb-4 md:mb-6">
               あなたは、{typeResult.typePattern}タイプの「{typeResult.classificationType}」に分類されます。
-              {resultTextsMap[typeResult.typePattern]?.classificationSummary || 
-                (typeResult.classificationType === '類似型' ? '4つの軸において類似した特性を持ち、一貫した方向性で物事を捉えます。' : 
-                 typeResult.classificationType === '調和型' ? '異なる個性や意見を尊重しながら、全体を整えていくバランス感覚を持っています。' : 
-                 '対照的な特性をもつ人や考え方を理解し、多様な視点から物事を捉えます。')}
+              {typeResult.classificationType === '類似型' && '4つの軸において類似した特性を持ち、一貫した方向性で物事を捉えます。'}
+              {typeResult.classificationType === '調和型' && '異なる個性や意見を尊重しながら、全体を整えていくバランス感覚を持っています。'}
+              {typeResult.classificationType === '真逆型' && '対照的な特性をもつ人や考え方を理解し、多様な視点から物事を捉えます。'}
             </p>
-            <TypeClassification 
-              classificationType={typeResult.classificationType} 
-              classificationSummary={resultTextsMap[typeResult.typePattern]?.classificationSummary}
-            />
+            <TypeClassification classificationType={typeResult.classificationType} />
           </div>
 
           <div className="w-full mb-8 md:mb-12">
