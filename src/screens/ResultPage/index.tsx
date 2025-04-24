@@ -170,9 +170,11 @@ export const ResultPage = (): JSX.Element => {
       const parsedData = JSON.parse(storedManagementScoreData) as ManagementScoreData;
       setManagementScoreData(parsedData);
       
-      // スコア計算（100点満点に換算）
-      const maxPossibleScore = parsedData.answeredCount * 5; // 各質問は5点満点
-      const calculatedScore = Math.round((parsedData.totalScore / maxPossibleScore) * 100);
+      // スコア計算（0-4点スケールを60-100点に変換）
+      // 経営質問は10問で、各質問は0-4点
+      // 0点（最低）の場合は60点、40点（最高）の場合は100点に線形変換
+      const maxPossibleScore = parsedData.answeredCount * 4; // 各質問は4点満点
+      const calculatedScore = Math.round(60 + (parsedData.totalScore / maxPossibleScore) * 40);
       setScore(calculatedScore);
     } else {
       // データがない場合はデモデータを表示（本番では診断ページにリダイレクトすべき）

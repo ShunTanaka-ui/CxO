@@ -148,11 +148,11 @@ export const DiagnosticPage = (): JSX.Element => {
           // 質問がisOpposite=trueの場合、スコアを逆転させる
           let score;
           if (question.isOpposite) {
-            // 逆転項目の場合：5→1点、4→2点、3→3点、2→4点、1→5点
-            score = 6 - answer;
+            // 逆転項目の場合：5→0点、4→1点、3→2点、2→3点、1→4点
+            score = 5 - answer;
           } else {
-            // 通常の場合：そのままのスコアを使用
-            score = answer;
+            // 通常の場合：1→0点、2→1点、3→2点、4→3点、5→4点
+            score = answer - 1;
           }
           
           totalScore += score;
