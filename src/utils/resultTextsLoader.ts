@@ -9,10 +9,10 @@ export interface ResultText {
   typePattern: string;
   resultSummary: string;
   classificationSummary: string;
+  oneWordSummary: string;
   oneWord: string;
   careerPathSummary: string;
   environment: EnvironmentPoint[];
-  typeDescription: string;
 }
 
 // 診断結果テキストをロードする関数
@@ -32,18 +32,14 @@ export const loadResultTexts = async (): Promise<Record<string, ResultText>> => 
       { title: row.env3Title, description: row.env3Desc },
       { title: row.env4Title, description: row.env4Desc }
     ];
-    
-    // 「あなたは、」を除去した部分をtypeDescriptionとして使用
-    const typeDescription = row.resultSummary.replace(/^あなたは、/, '').replace(/です。.*$/, '');
-    
     resultMap[row.typePattern] = {
       typePattern: row.typePattern,
       resultSummary: row.resultSummary,
       classificationSummary: row.classificationSummary,
+      oneWordSummary: row.oneWordSummary || "",
       oneWord: row.oneWord,
       careerPathSummary: row.careerPathSummary,
-      environment: env,
-      typeDescription: row.typeDescription || typeDescription || 'タイプの詳細'
+      environment: env
     };
   });
   return resultMap;
