@@ -42,90 +42,73 @@ interface PersonalityScoreData {
 interface PersonalityTypeResult {
   typePattern: string;
   classificationType: '類似型' | '調和型' | '真逆型';
-  typeDescription: string;
 }
 
 // パーソナリティタイプのマッピング
 const personalityTypeMapping: Record<string, PersonalityTypeResult> = {
   'AAAA': {
     typePattern: 'AAAA',
-    classificationType: '類似型',
-    typeDescription: '未来を描き、市場を切り拓く、生粋のスタートアップ・リーダー'
+    classificationType: '類似型'
   },
   'AAAB': {
     typePattern: 'AAAB',
-    classificationType: '類似型',
-    typeDescription: 'ビジョンと仲間を原動力に、新しい価値を創造する情熱家'
+    classificationType: '類似型'
   },
   'AABA': {
     typePattern: 'AABA',
-    classificationType: '類似型',
-    typeDescription: 'メンバーと対話し、市場ニーズに応える、機動力ある挑戦者'
+    classificationType: '類似型'
   },
   'AABB': {
     typePattern: 'AABB',
-    classificationType: '調和型',
-    typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
+    classificationType: '調和型'
   },
   'BBAA': {
     typePattern: 'BBAA',
-    classificationType: '調和型',
-    typeDescription: '市場を見据え、戦略的に事業を成長させる、冷静な指揮官'
+    classificationType: '調和型'
   },
   'BBAB': {
     typePattern: 'BBAB',
-    classificationType: '真逆型',
-    typeDescription: '組織とビジョンを着実に育て上げる、堅実な組織アーキテクト'
+    classificationType: '真逆型'
   },
   'BBBA': {
     typePattern: 'BBBA',
-    classificationType: '真逆型',
-    typeDescription: '緻密な計画と対話で、市場の変化に対応する、信頼のナビゲーター'
+    classificationType: '真逆型'
   },
   'BBBB': {
     typePattern: 'BBBB',
-    classificationType: '真逆型',
-    typeDescription: '人とプロセスを磨き、組織の持続的成長を築く、安定の守護者'
+    classificationType: '真逆型'
   },
   'ABAA': {
     typePattern: 'ABAA',
-    classificationType: '類似型',
-    typeDescription: '市場を見据え、緻密な戦略で新しい価値を実現する、戦略的創造者'
+    classificationType: '類似型'
   },
   'ABAB': {
     typePattern: 'ABAB',
-    classificationType: '調和型',
-    typeDescription: 'ビジョン達成に向け、計画と組織力を融合させる、未来志向の設計者'
+    classificationType: '調和型'
   },
   'ABBA': {
     typePattern: 'ABBA',
-    classificationType: '調和型',
-    typeDescription: '市場の声とメンバーの知恵を結集し、革新を生む、対話型チャレンジャー'
+    classificationType: '調和型'
   },
   'ABBB': {
     typePattern: 'ABBB',
-    classificationType: '真逆型',
-    typeDescription: '人を活かし、計画的に新しい組織文化を創造する、共創型リーダー'
+    classificationType: '真逆型'
   },
   'BAAA': {
     typePattern: 'BAAA',
-    classificationType: '類似型',
-    typeDescription: '市場の変化を捉え、即断即決で事業を拡大する、実践的グロースハッカー'
+    classificationType: '類似型'
   },
   'BAAB': {
     typePattern: 'BAAB',
-    classificationType: '調和型',
-    typeDescription: 'ビジョン達成のため、組織と行動力を両輪でドライブする、行動派リーダー'
+    classificationType: '調和型'
   },
   'BABA': {
     typePattern: 'BABA',
-    classificationType: '調和型',
-    typeDescription: '市場の声に応え、メンバーと共に迅速に改善を進める、現場主義の改革者'
+    classificationType: '調和型'
   },
   'BABB': {
     typePattern: 'BABB',
-    classificationType: '真逆型',
-    typeDescription: 'メンバーの力を引き出し、行動を通じて組織を着実に成長させる、伴走型リーダー'
+    classificationType: '真逆型'
   }
 };
 
@@ -154,8 +137,7 @@ export const ResultPage = (): JSX.Element => {
   // タイプ分類の結果を保持するステート
   const [typeResult, setTypeResult] = useState<PersonalityTypeResult>({
     typePattern: 'AABB',
-    classificationType: '調和型',
-    typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
+    classificationType: '調和型'
   });
   const [resultTextsMap, setResultTextsMap] = useState<Record<string, ResultText>>({});
   const [strengthTextsMap, setStrengthTextsMap] = useState<Record<number, { title: string; description: string }>>({});
@@ -201,8 +183,7 @@ export const ResultPage = (): JSX.Element => {
       // デモ用のタイプ分類
       setTypeResult({
         typePattern: 'AABB',
-        classificationType: '調和型',
-        typeDescription: 'チームの和を力に、ゼロからイチを生み出す、共感型イノベーター'
+        classificationType: '調和型'
       });
     }
 
@@ -244,8 +225,7 @@ export const ResultPage = (): JSX.Element => {
       console.warn(`未知のタイプパターン: ${typePattern}`);
       return {
         typePattern,
-        classificationType: '調和型',
-        typeDescription: 'チームの和を力に、組織の成長に貢献する、バランス型リーダー'
+        classificationType: '調和型'
       };
     }
   };
@@ -626,7 +606,7 @@ export const ResultPage = (): JSX.Element => {
             <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたを一言で表すと...</h3>
             <div>
               <h4 className="text-base md:text-lg font-bold text-[#2B7D3C] mb-3 md:mb-4">
-                {typeResult.typeDescription}
+                {resultTextsMap[typeResult.typePattern]?.typeDescription || 'タイプの詳細'}
               </h4>
               <p className="text-sm text-[#343C4B] leading-relaxed">
                 {getTypeDescription(typeResult.typePattern)}
