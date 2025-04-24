@@ -170,8 +170,9 @@ export const ResultPage = (): JSX.Element => {
       const parsedData = JSON.parse(storedManagementScoreData) as ManagementScoreData;
       setManagementScoreData(parsedData);
       
-      // スコア計算（小数点以下四捨五入）
-      const calculatedScore = Math.round(parsedData.totalScore);
+      // スコア計算（100点満点に換算）
+      const maxPossibleScore = parsedData.answeredCount * 5; // 各質問は5点満点
+      const calculatedScore = Math.round((parsedData.totalScore / maxPossibleScore) * 100);
       setScore(calculatedScore);
     } else {
       // データがない場合はデモデータを表示（本番では診断ページにリダイレクトすべき）
