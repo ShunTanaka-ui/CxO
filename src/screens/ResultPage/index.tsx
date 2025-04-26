@@ -637,7 +637,7 @@ export const ResultPage = (): JSX.Element => {
           <div className="w-full mb-8 md:mb-12">
             <h2 className="flex items-center gap-2 text-xl md:text-2xl font-bold mb-6 md:mb-8">
               <span className="w-8 h-8 border border-black rounded-full flex items-center justify-center">2</span>
-              あなたのキャリアパス
+              キャリアアドバイス
             </h2>
             <div className="flex flex-col md:flex-row items-start gap-6 md:gap-12">
               <div className="flex-1">
