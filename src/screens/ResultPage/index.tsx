@@ -174,7 +174,13 @@ export const ResultPage = (): JSX.Element => {
       // 経営質問は10問で、各質問は0-4点
       // 0点（最低）の場合は60点、40点（最高）の場合は100点に線形変換
       const maxPossibleScore = parsedData.answeredCount * 4; // 各質問は4点満点
-      const calculatedScore = Math.round(60 + (parsedData.totalScore / maxPossibleScore) * 40);
+      let calculatedScore = 0;
+      if (maxPossibleScore > 0) {
+        calculatedScore = Math.round(60 + (parsedData.totalScore / maxPossibleScore) * 40);
+      } else {
+        // 回答がない場合は最低スコア（60点）を設定
+        calculatedScore = 60;
+      }
       setScore(calculatedScore);
     } else {
       // データがない場合はデモデータを表示（本番では診断ページにリダイレクトすべき）

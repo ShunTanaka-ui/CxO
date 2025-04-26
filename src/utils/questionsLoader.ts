@@ -28,8 +28,8 @@ export const loadQuestions = async (): Promise<Question[]> => {
         text: row.text
       };
       
-      // 経営質問かどうか
-      if (row.isManagementQuestion === 'true') {
+      // 経営質問かどうか（大文字小文字を無視して判定）
+      if (typeof row.isManagementQuestion === 'string' && row.isManagementQuestion.toLowerCase() === 'true') {
         question.isManagementQuestion = true;
       }
       
@@ -43,8 +43,8 @@ export const loadQuestions = async (): Promise<Question[]> => {
         question.personalityType = row.personalityType as 'A' | 'B';
       }
       
-      // 逆転項目かどうか
-      if (row.isOpposite === 'true') {
+      // 逆転項目かどうか（大文字小文字を無視して判定）
+      if (typeof row.isOpposite === 'string' && row.isOpposite.toLowerCase() === 'true') {
         question.isOpposite = true;
       }
       
