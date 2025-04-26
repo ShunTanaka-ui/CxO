@@ -604,7 +604,7 @@ export const ResultPage = (): JSX.Element => {
 
           <div className="w-full mb-8 md:mb-12">
             <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたのタイプ分類：{typeResult.classificationType}</h3>
-            <p className="text-sm text-[#343C4B] mb-4 md:mb-6">
+            <p className="text-sm text-[#343C4B] mb-4 md:mb-6 whitespace-pre-line">
               {resultTextsMap[typeResult.typePattern]?.classificationSummary}
             </p>
             <TypeClassification 
@@ -628,7 +628,7 @@ export const ResultPage = (): JSX.Element => {
               <h4 className="text-base md:text-lg font-bold text-[#2B7D3C] mb-3 md:mb-4">
                 {resultTextsMap[typeResult.typePattern]?.oneWordSummary || typeResult.typeDescription}
               </h4>
-              <p className="text-sm text-[#343C4B] leading-relaxed">
+              <p className="text-sm text-[#343C4B] leading-relaxed whitespace-pre-line">
                 {getTypeDescription(typeResult.typePattern)}
               </p>
             </div>
@@ -641,7 +641,7 @@ export const ResultPage = (): JSX.Element => {
             </h2>
             <div className="flex flex-col md:flex-row items-start gap-6 md:gap-12">
               <div className="flex-1">
-                <p className="text-sm text-[#343C4B] leading-relaxed">
+                <p className="text-sm text-[#343C4B] leading-relaxed whitespace-pre-line">
                   {getCareerPathDescription(typeResult.typePattern)}
                 </p>
               </div>
