@@ -656,7 +656,7 @@ export const ResultPage = (): JSX.Element => {
           </div>
 
           <div className="w-full mb-8 md:mb-12">
-            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたの活躍できる環境</h3>
+            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたのキャリアポテンシャル</h3>
             <EnvironmentPoints points={getEnvironmentPoints(typeResult.typePattern)} />
           </div>
 
