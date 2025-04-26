@@ -236,12 +236,8 @@ export const DiagnosticPage = (): JSX.Element => {
   };
 
   const getRadioButtonStyle = (value: number) => {
-    if (value <= 2) {
-      return "border-[#ff3232] hover:border-[#ff3232] text-[#ff3232]";
-    } else if (value >= 4) {
-      return "border-[#00a381] hover:border-[#00a381] text-[#00a381]";
-    }
-    return "border-gray-300 hover:border-gray-400 text-gray-400";
+    // すべての選択肢に同じ濃いグレーのスタイルを適用
+    return "border-gray-600 hover:border-gray-700 text-gray-600";
   };
 
   const getRadioButtonLabel = (value: number) => {
