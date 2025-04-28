@@ -19,7 +19,7 @@ export const TypeClassification = ({ classificationType, classificationSummary }
         </h4>
         <img src="/magyaku.png" alt="真逆型" className="w-full rounded-lg mb-2" />
         <p className="text-xs text-[#343C4B]">
-          自分とは考え方の異なる相手に刺激を受け、意かれる場面もあるが、衝突のリスクも
+          自分とは考え方の異なる相手に刺激を受け、自身を成長させることができるタイプ
         </p>
       </div>
       <div className={`rounded-lg p-4 border relative ${classificationType === '類似型' ? 'border-green-500' : ''}`}>
