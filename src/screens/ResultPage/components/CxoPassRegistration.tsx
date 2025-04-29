@@ -39,9 +39,6 @@ export const CxoPassRegistration = (): JSX.Element => {
           <span className="text-[#FF3232]">CxOPass</span>
           <span className="text-[#343C4B]">に登録</span>
         </h3>
-        <p className="text-xs md:text-sm text-[#343C4B] leading-relaxed mb-6 md:mb-8">
-          アクシスコンサルティングは、実績に裏打ちされた国内最大級のコンサルタント採用・転職サービスを提供してきました。このたび、StartPassという、国内アーリー期スタートアップの多くが信頼を寄せるパートナーと業務提携をいたしました。両業界の架け橋となるマッチングサービスがCxO-Passです。
-        </p>
 
         <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
           {points.map((point) => (
