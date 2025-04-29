@@ -13,6 +13,10 @@ export const FooterSection = (): JSX.Element => {
       <div className="flex flex-col items-center justify-center gap-6 md:gap-8">
         <div className="w-[100px] h-[28px] bg-[url(/White_logo.png)] bg-contain bg-center bg-no-repeat" />
         
+        <div className="max-w-[800px] mx-auto px-4 text-white text-xs md:text-sm text-center mb-4">
+          アクシスコンサルティングは、実績に裏打ちされた国内最大級のコンサルタント採用・転職サービスを提供してきました。このたび、StartPassという、国内アーリー期スタートアップの多くが信頼を寄せるパートナーと業務提携をいたしました。両業界の架け橋となるマッチングサービスがCxO-Passです。
+        </div>
+
         <div className="flex flex-wrap justify-center items-center gap-y-2">
           {footerLinks.map((link, index) => (
             <React.Fragment key={index}>
