@@ -578,8 +578,7 @@ export const ResultPage = (): JSX.Element => {
 
       <div className="max-w-[800px] mx-auto px-4 py-8 md:py-12">
         <section className="mb-12 md:mb-16">
-          <h2 className="flex items-center gap-2 text-xl md:text-2xl font-bold mb-6 md:mb-8">
-            <span className="w-8 h-8 border border-black rounded-full flex items-center justify-center">1</span>
+          <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">
             診断結果
           </h2>
 
@@ -639,15 +638,15 @@ export const ResultPage = (): JSX.Element => {
               </p>
             </div>
             <div className="mt-6">
+              <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">あなたの強み</h3>
               <EnvironmentPoints points={getEnvironmentPoints(typeResult.typePattern)} />
             </div>
           </div>
 
           <div className="w-full mb-8 md:mb-12">
-            <h2 className="flex items-center gap-2 text-xl md:text-2xl font-bold mb-6 md:mb-8">
-              <span className="w-8 h-8 border border-black rounded-full flex items-center justify-center">2</span>
+            <h3 className="text-lg md:text-xl font-bold mb-6 md:mb-8">
               キャリアアドバイス
-            </h2>
+            </h3>
             <div className="flex flex-col md:flex-row items-start gap-6 md:gap-12">
               <div className="flex-1">
                 <p className="text-sm text-[#343C4B] leading-relaxed whitespace-pre-line">
