@@ -653,7 +653,7 @@ export const ResultPage = (): JSX.Element => {
                   {getCareerPathDescription(typeResult.typePattern)}
                 </p>
               </div>
-              <div className="w-full md:w-[320px] flex-shrink-0">
+              <div className="w-full md:w-[320px] flex-shrink-0 border border-gray-300 rounded-lg p-4 bg-gray-50">
                 <img 
                   src="/careerup.png" 
                   alt="キャリアアップイメージ" 
