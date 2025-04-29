@@ -638,6 +638,9 @@ export const ResultPage = (): JSX.Element => {
                 {getTypeDescription(typeResult.typePattern)}
               </p>
             </div>
+            <div className="mt-6">
+              <EnvironmentPoints points={getEnvironmentPoints(typeResult.typePattern)} />
+            </div>
           </div>
 
           <div className="w-full mb-8 md:mb-12">
@@ -659,11 +662,6 @@ export const ResultPage = (): JSX.Element => {
                 />
               </div>
             </div>
-          </div>
-
-          <div className="w-full mb-8 md:mb-12">
-            <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">キャリアキーワード</h3>
-            <EnvironmentPoints points={getEnvironmentPoints(typeResult.typePattern)} />
           </div>
 
           <CxoPassRegistration />
