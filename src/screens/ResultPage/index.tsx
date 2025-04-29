@@ -392,7 +392,7 @@ export const ResultPage = (): JSX.Element => {
       case '類似型':
         return { bgColor: 'bg-[#F6F4E0]', image: '/ruiji_top.png' };
       case '真逆型':
-        return { bgColor: 'bg-[#FBE8E8]', image: '/magyaku_top.png' };
+        return { bgColor: 'bg-[#EAECF6]', image: '/magyaku_top.png' };
       case '調和型':
       default:
         return { bgColor: 'bg-[#ebf6f1]', image: '/chowa_top.png' };
